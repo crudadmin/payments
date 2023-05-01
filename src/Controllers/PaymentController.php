@@ -23,7 +23,7 @@ class PaymentController extends Controller
             abort(401);
         }
 
-        return PaymentService::isPaymentPaid($payment, $type);
+        return $payment->isPaymentPaid($type);
     }
 
     public function postPayment($model, $orderId, $hash)

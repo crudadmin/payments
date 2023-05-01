@@ -129,4 +129,55 @@ class Payment extends AdminModel
             }
         }
     }
+
+    public function isPaymentPaid($type = 'notification')
+    {
+        $provider = PaymentService::setOrder($this->getOrder())
+                                    ->getPaymentProvider($this->payment_method_id);
+
+        $provider->setPayment($this);
+
+        $redirect = null;
+
+        try {
+            $provider->isPaid(
+                $provider->getPaymentId()
+            );
+
+            //Custom paid callback. We also can overide default redirect
+            if ( method_exists($provider, 'onPaid') ){
+                $redirect = $provider->onPaid($this);
+            }
+
+            //Default paid callback
+            else {
+                //Update payment status
+                $this->onPaymentPaid();
+            }
+
+            //If redirect is not set yet
+            if ( ! $redirect ){
+                $redirect = redirect(PaymentService::onPaymentSuccess());
+            }
+        } catch (Exception $e){
+            if ( PaymentService::isDebug() ){
+                throw $e;
+            }
+
+            $log = $order->logException($e, function($log) use ($e) {
+                $log->code = $log->code ?: 'PAYMENT_ERROR';
+            });
+
+            $redirect = redirect(PaymentService::onPaymentError($log->code));
+        }
+
+        //Does not return redirect response on notification
+        if ( in_array($type, ['notification']) ){
+            return $provider->getNotificationResponse(
+                $provider->getPaymentId()
+            );
+        }
+
+        return $redirect;
+    }
 }

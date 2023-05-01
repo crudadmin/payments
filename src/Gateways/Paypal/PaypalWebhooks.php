@@ -2,12 +2,12 @@
 
 namespace AdminPayments\Gateways\Paypal;
 
-use AdminPayments\Models\Orders\Payment;
+use AdminPayments\Gateways\PaymentWebhook;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use OrderService;
+use PaymentService;
 
-class PaypalWebhooks
+class PaypalWebhooks extends PaymentWebhook
 {
     private function getPaymentId($body)
     {
@@ -37,11 +37,9 @@ class PaypalWebhooks
     {
         $paymentId = $this->getPaymentId($body);
 
-        if ( !($payment = Payment::where('payment_id', $paymentId)->first()) ){
-            throw new Exception('Payment could not be found');
-        }
+        $payment = $this->getPayment($paymentId);
 
-        if ( !($order = $payment->order) ){
+        if ( !($order = $payment->getOrder()) ){
             throw new Exception('Order could not be found');
         }
 
@@ -55,7 +53,7 @@ class PaypalWebhooks
 
         //When order is approved, we need initialize capture of order.
         if ( isset($body['event_type']) && in_array($body['event_type'], ['CHECKOUT.ORDER.APPROVED']) ) {
-            return OrderService::isPaymentPaid($payment, $payment->order, 'notification');
+            return $payment->isPaymentPaid();
         }
     }
 }

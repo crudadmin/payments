@@ -2,13 +2,14 @@
 
 namespace AdminPayments\Gateways\Stripe;
 
-use AdminPayments\Models\Orders\Payment;
-use OrderService;
+use Admin;
+use AdminPayments\Gateways\PaymentWebhook;
 use Exception;
-use Stripe\Stripe;
 use Log;
+use PaymentService;
+use Stripe\Stripe;
 
-class StripeWebhooks
+class StripeWebhooks extends PaymentWebhook
 {
     public function setApiKey()
     {
@@ -67,11 +68,9 @@ class StripeWebhooks
         if ( in_array($event->type, $listenForWebhooks) ) {
             $session = $event->data->object;
 
-            if ( !($payment = Payment::where('payment_id', $session->id)->first()) ) {
-                throw new Exception('Payment could not be found: '.$session->id);
-            }
+            $payment = $this->getPayment($session->id);
 
-            OrderService::isPaymentPaid($payment, $payment->order);
+            $payment->isPaymentPaid();
         }
     }
 }

@@ -153,6 +153,16 @@ trait HasPayments
         return $this->payment_method_id;
     }
 
+    /**
+     * Overall payment description
+     *
+     * @return  string|nullable
+     */
+    public function getPaymentDescription()
+    {
+
+    }
+
     public function payments()
     {
         return $this

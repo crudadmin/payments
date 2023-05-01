@@ -80,4 +80,11 @@ interface Orderable
      * @return  string
      */
     public function getPaymentHash() : string;
+
+    /**
+     * Returns overall payment/order description
+     *
+     * @return  mixed|null
+     */
+    public function getPaymentDescription();
 }

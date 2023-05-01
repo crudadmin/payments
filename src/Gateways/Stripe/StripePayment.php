@@ -40,12 +40,10 @@ class StripePayment extends PaymentGateway
                     'price_data' => [
                         'currency' => Store::getCurrency()->code,
                         'unit_amount' => round($order->price_vat * 100),
-                        'product_data' => [
+                        'product_data' => array_filter([
                             'name' => 'Order n. '.$order->number,
-                            'description' => $order->items->map(function($item){
-                                return $item->quantity.'x - '.$item->getProductName();
-                            })->join('... '),
-                        ],
+                            'description' => $order->getPaymentDescription(),
+                        ]),
                     ],
                     'quantity' => 1,
                 ],
@@ -62,8 +60,8 @@ class StripePayment extends PaymentGateway
         //If stripe customer exists, then assign payment under this customer. (Support for saved payment methods)
         if ( client() && $stripeCustomerId = client()->stripe_customer_id ){
             $data['customer'] = $stripeCustomerId;
-        } else {
-            $data['customer_email'] = $order->email;
+        } else if ( $email = $order->email ) {
+            $data['customer_email'] = $email;
         }
 
         if ( $types = $this->getOption('payment_method_types') ){

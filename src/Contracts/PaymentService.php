@@ -25,6 +25,12 @@ class PaymentService
      */
     protected $order;
 
+    protected $paymentTypesConfigKey = 'adminpayments.payment_methods.providers';
+
+    protected $onPaymentSuccessCallback = null;
+
+    protected $onPaymentErrorCallback = null;
+
     /**
      * Set order
      *
@@ -45,6 +51,78 @@ class PaymentService
     public function getOrder()
     {
         return $this->order;
+    }
+
+    /**
+     * Set successfull payment response callback
+     *
+     * @param  callable  $callback
+     */
+    public function setOnPaymentSuccess(callable $callback)
+    {
+        $this->onPaymentSuccessCallback = $callback;
+    }
+
+    /**
+     * Set error payment response callback
+     *
+     * @param  callable  $callback
+     */
+    public function setOnPaymentError(callable $callback)
+    {
+        $this->onPaymentErrorCallback = $callback;
+    }
+
+    /**
+     * Get payment success response
+     *
+     * @return  callable
+     */
+    public function onPaymentSuccess()
+    {
+        $order = $this->getOrder();
+
+        if ( is_callable($callback = $this->onPaymentSuccessCallback) ) {
+            return $callback($order);
+        }
+    }
+
+    /**
+     * Get redirect link with payment error code
+     *
+     * @param  int|string  $code
+     *
+     * @return  string|nullable
+     */
+    public function onPaymentError($code)
+    {
+        $order = $this->getOrder();
+
+        if ( is_callable($callback = $this->onPaymentErrorCallback) ) {
+            $message = $this->getOrderMessage($code);
+
+            return $callback($order, $code, $message);
+        }
+    }
+
+    /**
+     * Returns Payment provider
+     *
+     * @param  int|nullale  $paymentMethodId
+     *
+     * @return  AdminPayments\Gateways\PaymentGateway|null
+     */
+    public function getPaymentProvider($paymentMethodId = null)
+    {
+        $order = $this->getOrder();
+
+        if ( !($paymentMethodId = $paymentMethodId ?: $order->payment_method_id) ){
+            return;
+        }
+
+        $paymentClass = $this->getProviderById($this->paymentTypesConfigKey, $paymentMethodId);
+
+        return $paymentClass;
     }
 
     public function routesForPayments()

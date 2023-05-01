@@ -2,68 +2,148 @@
 
 namespace AdminPayments\Contracts\Concerns;
 
-use Admin;
-use AdminPayments\Events\OrderPaid as OrderPaidEvent;
-use AdminPayments\Gateways\GopayPayment;
-use AdminPayments\Models\Payments\Payment;
-use Carbon\Carbon;
+use AdminPayments\Contracts\Concerns\HasPaymentHash;
+use AdminPayments\Contracts\Concerns\HasPaymentLog;
+use AdminPayments\Mail\PaymentPaid;
+use AdminPayments\Models\Invoice\Invoice;
 use Exception;
+use Illuminate\Support\Facades\Mail;
+use Log;
+use PaymentService;
 
 trait HasPayments
 {
-    protected $paymentTypesConfigKey = 'adminpayments.payment_methods.providers';
+    use HasPaymentHash,
+        HasPaymentLog;
 
-    protected $onPaymentSuccessCallback = null;
-    protected $onPaymentErrorCallback = null;
-
-    public function setOnPaymentSuccess(callable $callback)
+    public function hasInvoices()
     {
-        $this->onPaymentSuccessCallback = $callback;
+        return config('adminpayments.invoices.enabled', false);
     }
 
-    public function setOnPaymentError(callable $callback)
+    public function hasPaidNotification()
     {
-        $this->onPaymentErrorCallback = $callback;
+        return config('adminpayments.notificaions.paid', true);
     }
 
-    public function onPaymentSuccess()
+    public function isPaid() : bool
     {
-        $order = $this->getOrder();
+        return $this->payments()->whereNotNull('paid_at')->count() > 0 ? true : false;
+    }
 
-        if ( is_callable($callback = $this->onPaymentSuccessCallback) ) {
-            return $callback($order);
+    public function getPaymentData($paymentMethodId = null)
+    {
+        $paymentMethodId = $paymentMethodId ?: $this->getPaymentMethodId();
+
+        if ( !($paymentClass = $this->getPaymentProvider($paymentMethodId)->initialize()) ){
+            return [];
         }
+
+        return array_merge(
+            [
+                'provider' => class_basename($paymentClass::class)
+            ],
+            $paymentClass->getPaymentData(
+                $paymentClass->getResponse()
+            )
+        );
     }
 
-    /**
-     * Get redirect link with payment error code
-     *
-     * @param  int|string  $code
-     *
-     * @return  string|nullable
-     */
-    public function onPaymentError($code)
+    public function getPaymentUrl($paymentMethodId = null)
     {
-        $order = $this->getOrder();
+        $paymentMethodId = $paymentMethodId ?: $this->getPaymentMethodId();
 
-        if ( is_callable($callback = $this->onPaymentErrorCallback) ) {
-            $message = $this->getOrderMessage($code);
-
-            return $callback($order, $code, $message);
+        if ( !($paymentClass = $this->getPaymentProvider($paymentMethodId)->initialize()) ){
+            return [];
         }
+
+        return $paymentClass->getPaymentUrl(
+            $paymentClass->getResponse()
+        );
+    }
+
+    public function getPostPaymentUrl($paymentMethodId = null)
+    {
+        $paymentMethodId = $paymentMethodId ?: $this->getPaymentMethodId();
+
+        if ( !($paymentClass = $this->getPaymentProvider($paymentMethodId)) ){
+            return;
+        }
+
+        return $paymentClass->getPostPaymentUrl(
+            $paymentClass->getResponse()
+        );
+    }
+
+    public function getPaymentDataAttribute()
+    {
+        return $this->getPaymentData();
+    }
+
+    public function getPostPaymentUrlAttribute()
+    {
+        return $this->getPostPaymentUrl();
     }
 
     public function getPaymentProvider($paymentMethodId = null)
     {
-        $order = $this->getOrder();
+        return PaymentService::setOrder($this)->getPaymentProvider($paymentMethodId);
+    }
 
-        if ( !($paymentMethodId = $paymentMethodId ?: $order->payment_method_id) ){
-            return;
+    public function getPaidNotificationContent()
+    {
+        return [
+            'subject' => sprintf(_('Potvrdenie platby k objednávke č. %s'), $this->number),
+            'content' => _('Vaša objednávka bola úspešne dokončená a zaplatená. Ďakujeme!'),
+        ];
+    }
+
+    /**
+     * Create order payment
+     *
+     * @param  AdminModel  $order
+     * @param  int|null  $paymentMethodId
+     *
+     * @return  Payment
+     */
+    public function makePayment($paymentMethodId = null)
+    {
+        return $this->payments()->create([
+            'price' => $this->price_vat,
+            'payment_method_id' => $paymentMethodId ?: $this->getPaymentMethodId(),
+            'uniqid' => uniqid().str_random(10),
+        ]);
+    }
+
+    public function sendPaymentEmail($invoice = null)
+    {
+        try {
+            Mail::to($this->email)->send(
+                new PaymentPaid($this, $invoice)
+            );
+
+            if ( $invoice instanceof Invoice ) {
+                $invoice->setNotified();
+            }
+        } catch (Exception $e){
+            Log::error($e);
+
+            $this->log()->create([
+                'type' => 'error',
+                'code' => 'email-payment-done-error',
+            ]);
         }
+    }
 
-        $paymentClass = $this->getProviderById($this->paymentTypesConfigKey, $paymentMethodId);
-
-        return $paymentClass;
+    /**
+     * We will fetch selected payment method from this column
+     *
+     * @return  int
+     */
+    public function getPaymentMethodId()
+    {
+        return $this->payment_method_id;
     }
 }
+
 ?>

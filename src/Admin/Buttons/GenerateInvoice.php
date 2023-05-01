@@ -24,7 +24,7 @@ class GenerateInvoice extends Button
         $this->icon = 'fa-file-pdf-o';
 
         //Allow button only when invoices are created
-        $this->active = OrderService::hasInvoices();
+        $this->active = $row->hasInvoices();
     }
 
     /*

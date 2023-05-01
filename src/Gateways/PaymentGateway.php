@@ -4,6 +4,7 @@ namespace AdminPayments\Gateways;
 
 use AdminPayments\Contracts\ConfigProvider;
 use AdminPayments\Gateways\Exceptions\PaymentResponseException;
+use PaymentService;
 
 class PaymentGateway extends ConfigProvider
 {
@@ -66,14 +67,6 @@ class PaymentGateway extends ConfigProvider
         return $this->getPayment()->payment_id;
     }
 
-    /*
-     * Get order payment hash
-     */
-    public function getOrderHash($type = null)
-    {
-        return $this->getOrder()->makePaymentHash($type);
-    }
-
     /**
      * Returns additional payment data
      *
@@ -102,26 +95,60 @@ class PaymentGateway extends ConfigProvider
 
     public function getResponseUrl($type)
     {
+        $payment = $this->getPayment();
+
         return action('\AdminPayments\Controllers\PaymentController@paymentStatus', [
-            $this->getPayment()->getKey(),
+            $payment->getKey(),
             $type,
-            $this->getOrderHash($type),
+            $payment->getPaymentHash($type),
         ]);
     }
 
     public function getPostPaymentUrl($paymentResponse)
     {
-        $type = 'postpayment';
+        $order = $this->getOrder();
 
         return action('\AdminPayments\Controllers\PaymentController@postPayment', [
-            $this->getOrder()->getKey(),
-            $this->getOrderHash($type),
+            $order->getTable(),
+            $order->getKey(),
+            $order->getPaymentHash('postpayment'),
         ]);
     }
 
     public function getNotificationResponse($paymentId)
     {
         return ['success' => true];
+    }
+
+    public function initialize()
+    {
+        $order = $this->getOrder();
+
+        $paymentMethodId = $this->getIdentifier();
+
+        $key = 'payments.'.$order->getTable().'.'.$order->getKey().'.'.$paymentMethodId.'.data';
+
+        return $this->cache($key, function() use ($order, $paymentMethodId) {
+            try {
+                $payment = $order->makePayment($paymentMethodId);
+
+                $this->setPayment($payment);
+
+                $this->setResponse(
+                    $this->getPaymentResponse()
+                );
+
+                return $this;
+            } catch (Exception $e){
+                $this->getOrder()->logException($e, function($log){
+                    $log->code = 'PAYMENT_INITIALIZATION_ERROR';
+                });
+
+                if ( PaymentService::isDebug() ) {
+                    throw $e;
+                }
+            }
+        });
     }
 
     /**

@@ -6,7 +6,7 @@ use Admin\Providers\AdminHelperServiceProvider;
 
 class ConfigServiceProvider extends AdminHelperServiceProvider
 {
-    private $packageConfigKey = 'admineshop';
+    private $packageConfigKey = 'adminpayments';
 
     private function getPaymentsConfigPath()
     {
@@ -35,7 +35,7 @@ class ConfigServiceProvider extends AdminHelperServiceProvider
         //Merge crudadmin configs
         $this->mergeAdminConfigs(require __DIR__.'/../Config/admin.php');
 
-        //Merge admineshop configs
+        //Merge adminpayments configs
         $this->mergeConfigs(
             require $this->getPaymentsConfigPath(),
             $this->packageConfigKey,

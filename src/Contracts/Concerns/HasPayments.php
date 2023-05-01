@@ -3,9 +3,9 @@
 namespace AdminPayments\Contracts\Concerns;
 
 use Admin;
-use AdminPayments\Gateways\GopayPayment;
 use AdminPayments\Events\OrderPaid as OrderPaidEvent;
-use AdminPayments\Models\Orders\Payment;
+use AdminPayments\Gateways\GopayPayment;
+use AdminPayments\Models\Payments\Payment;
 use Carbon\Carbon;
 use Exception;
 
@@ -53,11 +53,6 @@ trait HasPayments
         }
     }
 
-    public function hasOnlinePayment($paymentMethodId = null)
-    {
-        return $this->getPaymentProvider($paymentMethodId) ? true : false;
-    }
-
     public function getPaymentProvider($paymentMethodId = null)
     {
         $order = $this->getOrder();
@@ -71,60 +66,12 @@ trait HasPayments
         return $paymentClass;
     }
 
-    /**
-     * Create order payment
-     *
-     * @param  AdminModel  $order
-     * @param  int|null  $paymentMethodId
-     *
-     * @return  Payment
-     */
-    private function makePayment($order, $paymentMethodId = null)
+    public function isPaymentPaid(Payment $payment, $type = 'notification')
     {
-        return $order->payments()->create([
-            'price' => $order->price_vat,
-            'payment_method_id' => $paymentMethodId ?: $order->payment_method_id,
-            'uniqid' => uniqid().str_random(10),
-        ]);
-    }
+        $paymentProvider = $this->setOrder($payment->getOrder())
+                                ->getPaymentProvider($payment->payment_method_id);
 
-    public function bootPaymentProvider($order, $paymentMethodId)
-    {
-        if ( !$this->hasOnlinePayment($paymentMethodId) ){
-            return false;
-        }
-
-        $this->setOrder($order);
-
-        return Admin::cache('payments.'.$order->getKey().'.'.$paymentMethodId.'.data', function() use ($order, $paymentMethodId) {
-            try {
-                $payment = $this->makePayment($order, $paymentMethodId);
-
-                $paymentClass = $this->getPaymentProvider($paymentMethodId);
-                $paymentClass->setPayment($payment);
-
-                $paymentClass->setResponse(
-                    $paymentClass->getPaymentResponse()
-                );
-
-                return $paymentClass;
-            } catch (Exception $e){
-                $order->logException($e, function($log){
-                    $log->code = 'PAYMENT_INITIALIZATION_ERROR';
-                });
-
-                if ( $this->isDebug() ) {
-                    throw $e;
-                }
-            }
-        });
-    }
-
-    public function isPaymentPaid(Payment $payment, $order = null, $type = 'notification')
-    {
-        $paymentProvider = $this->setOrder($order)
-                                ->getPaymentProvider($payment->payment_method_id)
-                                ->setPayment($payment);
+        $paymentProvider->setPayment($payment);
 
         $redirect = null;
 
@@ -141,9 +88,7 @@ trait HasPayments
             //Default paid callback
             else {
                 //Update payment status
-                $payment->update([ 'status' => 'paid' ]);
-
-                $this->orderPaid();
+                $payment->onPaymentPaid();
             }
 
             //If redirect is not set yet
@@ -151,7 +96,6 @@ trait HasPayments
                 $redirect = redirect($this->onPaymentSuccess());
             }
         } catch (Exception $e){
-            dd($e);
             if ( $this->isDebug() ){
                 throw $e;
             }
@@ -171,34 +115,6 @@ trait HasPayments
         }
 
         return $redirect;
-    }
-
-    public function orderPaid()
-    {
-        $order = $this->order;
-
-        //If order is paid already
-        if ( $order->paid_at ) {
-            return;
-        }
-
-        event(new OrderPaidEvent($order));
-
-        //Update order status paid
-        $order->update([ 'paid_at' => Carbon::now() ]);
-
-        //Countdown product stock on payment
-        if ( config('adminpayments.stock.countdown.on_order_paid', true) == true ) {
-            $order->syncStock('-', 'order.paid');
-        }
-
-        //Generate invoice
-        $invoice = $this->hasInvoices() ? $this->makeInvoice('invoice') : null;
-
-        //Send invoice email
-        if ( config('adminpayments.mail.order.paid_notification', true) == true ) {
-            $order->sendPaymentEmail($invoice);
-        }
     }
 }
 ?>

@@ -3,11 +3,14 @@
 namespace AdminPayments\Contracts;
 
 use AdminPayments\Concerns\Orderable;
+use Admin\Core\Contracts\DataStore;
 use Arr;
 use Gogol\Invoices\Model\PaymentsMethod;
 
 class ConfigProvider
 {
+    use DataStore;
+
     protected $options = [];
 
     /**
@@ -26,13 +29,14 @@ class ConfigProvider
     /**
      * Constructing of order provider
      *
+     * @param array|mixed    options
+     * @param string         identifier
+     *
      * @param  mixed  $options
      */
-    public function __construct($options = null, $identifier = null)
+    public function __construct($options = null)
     {
         $this->options = $options;
-
-        $this->identifier = $identifier;
     }
 
     /**
@@ -50,6 +54,13 @@ class ConfigProvider
     public function setPaymentMethod(PaymentsMethod $paymentMethod)
     {
         $this->paymentMethod = $paymentMethod;
+
+        return $this;
+    }
+
+    public function setIdentifier($identifier)
+    {
+        $this->identifier = $identifier;
 
         return $this;
     }

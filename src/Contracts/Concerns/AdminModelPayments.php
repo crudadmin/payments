@@ -2,6 +2,7 @@
 
 namespace AdminPayments\Contracts\Concerns;
 
+use AdminPayments\Contracts\Concerns\HasPaymentHash;
 use AdminPayments\Mail\PaymentPaid;
 use AdminPayments\Models\Invoice\Invoice;
 use Exception;
@@ -11,21 +12,64 @@ use PaymentService;
 
 trait AdminModelPayments
 {
+    use HasPaymentHash;
+
+    public function hasInvoices()
+    {
+        return config('adminpayments.invoices.enabled', false);
+    }
+
+    public function hasPaidNotification()
+    {
+        return config('adminpayments.notificaions.paid', true);
+    }
+
+    public function isPaid() : bool
+    {
+        return $this->payments()->whereNotNull('paid_at')->count() > 0 ? true : false;
+    }
+
     public function getPaymentData($paymentMethodId = null)
     {
-        $paymentMethodId = $paymentMethodId ?: $this->payment_method_id;
+        $paymentMethodId = $paymentMethodId ?: $this->getPaymentMethodId();
 
-        if ( !($paymentClass = PaymentService::bootPaymentProvider($this, $paymentMethodId)) ){
+        if ( !($paymentClass = $this->getPaymentProvider($paymentMethodId)->initialize()) ){
             return [];
         }
 
         return array_merge(
             [
-                'provider' => class_basename(get_class($this->getPaymentProvider($paymentMethodId)))
+                'provider' => class_basename($paymentClass::class)
             ],
             $paymentClass->getPaymentData(
                 $paymentClass->getResponse()
             )
+        );
+    }
+
+    public function getPaymentUrl($paymentMethodId = null)
+    {
+        $paymentMethodId = $paymentMethodId ?: $this->getPaymentMethodId();
+
+        if ( !($paymentClass = $this->getPaymentProvider($paymentMethodId)->initialize()) ){
+            return [];
+        }
+
+        return $paymentClass->getPaymentUrl(
+            $paymentClass->getResponse()
+        );
+    }
+
+    public function getPostPaymentUrl($paymentMethodId = null)
+    {
+        $paymentMethodId = $paymentMethodId ?: $this->getPaymentMethodId();
+
+        if ( !($paymentClass = $this->getPaymentProvider($paymentMethodId)) ){
+            return;
+        }
+
+        return $paymentClass->getPostPaymentUrl(
+            $paymentClass->getResponse()
         );
     }
 
@@ -44,30 +88,29 @@ trait AdminModelPayments
         return PaymentService::setOrder($this)->getPaymentProvider($paymentMethodId);
     }
 
-    public function getPaymentUrl($paymentMethodId = null)
+    public function getPaidNotificationContent()
     {
-        $paymentMethodId = $paymentMethodId ?: $this->payment_method_id;
-
-        if ( !($paymentClass = PaymentService::bootPaymentProvider($this, $paymentMethodId)) ){
-            return [];
-        }
-
-        return $paymentClass->getPaymentUrl(
-            $paymentClass->getResponse()
-        );
+        return [
+            'subject' => sprintf(_('Potvrdenie platby k objednávke č. %s'), $this->number),
+            'content' => _('Vaša objednávka bola úspešne dokončená a zaplatená. Ďakujeme!'),
+        ];
     }
 
-    public function getPostPaymentUrl($paymentMethodId = null)
+    /**
+     * Create order payment
+     *
+     * @param  AdminModel  $order
+     * @param  int|null  $paymentMethodId
+     *
+     * @return  Payment
+     */
+    public function makePayment($paymentMethodId = null)
     {
-        $paymentMethodId = $paymentMethodId ?: $this->payment_method_id;
-
-        if ( !($paymentClass = PaymentService::getPaymentProvider($paymentMethodId)) ){
-            return;
-        }
-
-        return $paymentClass->getPostPaymentUrl(
-            $paymentClass->getResponse()
-        );
+        return $this->payments()->create([
+            'price' => $this->price_vat,
+            'payment_method_id' => $paymentMethodId ?: $this->getPaymentMethodId(),
+            'uniqid' => uniqid().str_random(10),
+        ]);
     }
 
     public function sendPaymentEmail($invoice = null)
@@ -81,13 +124,23 @@ trait AdminModelPayments
                 $invoice->setNotified();
             }
         } catch (Exception $e){
-            Log::channel('payments')->error($e);
+            Log::error($e);
 
             $this->log()->create([
                 'type' => 'error',
                 'code' => 'email-payment-done-error',
             ]);
         }
+    }
+
+    /**
+     * We will fetch selected payment method from this column
+     *
+     * @return  int
+     */
+    public function getPaymentMethodId()
+    {
+        return $this->payment_method_id;
     }
 }
 

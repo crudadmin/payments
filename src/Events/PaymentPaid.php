@@ -10,10 +10,11 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class OrderPaid
+class PaymentPaid
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $payment;
     public $order;
 
     /**
@@ -21,9 +22,15 @@ class OrderPaid
      *
      * @return void
      */
-    public function __construct($order)
+    public function __construct($payment, $order)
     {
+        $this->payment = $payment;
         $this->order = $order;
+    }
+
+    public function getPayment()
+    {
+        return $this->payment;
     }
 
     public function getOrder()

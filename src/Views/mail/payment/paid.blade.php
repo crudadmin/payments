@@ -5,7 +5,7 @@
 {{ $message }}
 @endif
 
-@include('admineshop::mail.order.slots.invoice_button')
+@include('adminpayments::mail.payment.slots.invoice_button')
 
-@include('admineshop::mail.order.slots.footer')
+@include('adminpayments::mail.payment.slots.footer')
 @endcomponent

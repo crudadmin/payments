@@ -7,47 +7,50 @@ use AdminPayments\Contracts\Order\Exceptions\OrderException;
 use AdminPayments\Gateways\PaymentVerifier;
 use AdminPayments\Gateways\Paypal\PaypalWebhooks;
 use AdminPayments\Gateways\Stripe\StripeWebhooks;
-use AdminPayments\Models\Payments\Payment;
 use Admin\Controllers\Controller;
 use Exception;
 use Illuminate\Http\Request;
-use OrderService;
+use PaymentService;
 
 class PaymentController extends Controller
 {
-    public function paymentStatus(Payment $payment, $type, $hash)
+    public function paymentStatus($paymentId, $type, $hash)
     {
-        $order = $payment->order;
+        $payment = Admin::getModel('Payment')->findOrFail($paymentId);
 
         //Check if is payment hash correct hash and ids
-        if ( $hash != $order->makePaymentHash($type) ) {
+        if ( $hash != $payment->getPaymentHash($type) ) {
             abort(401);
         }
 
-        return OrderService::isPaymentPaid($payment, $order, $type);
+        return PaymentService::isPaymentPaid($payment, $type);
     }
 
-    public function postPayment($order, $hash)
+    public function postPayment($model, $orderId, $hash)
     {
-        $order = Admin::getModel('Order')->findOrFail($order);
+        if ( !($order = Admin::getModelByTable($model)) ){
+            abort(404);
+        }
+
+        $order = $order->findOrFail($orderId);
 
         $type = 'postpayment';
 
-        OrderService::setOrder($order);
-
         //Check if is payment hash correct hash and ids
-        if ( $hash != $order->makePaymentHash($type) ) {
+        if ( $hash != $order->getPaymentHash($type) ) {
             abort(401);
         }
 
+        PaymentService::setOrder($order);
+
         //Order has been paid already
-        if ( $order->paid_at ) {
-            return redirect(OrderService::onPaymentError('PAYMENT_PAID'));
+        if ( $order->isPaid() ) {
+            return redirect(PaymentService::onPaymentError('PAYMENT_PAID'));
         }
 
         //If payment url could not be generated successfully
-        if ( !($paymentUrl = $order->getPaymentUrl($order->payment_method_id)) ) {
-            $paymentUrl = OrderService::onPaymentError('PAYMENT_ERROR');
+        if ( !($paymentUrl = $order->getPaymentUrl()) ) {
+            $paymentUrl = PaymentService::onPaymentError('PAYMENT_ERROR');
         }
 
         return redirect($paymentUrl);

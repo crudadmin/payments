@@ -2,10 +2,20 @@
 
 namespace AdminPayments\Models\Payments;
 
+use AdminPayments\Contracts\Concerns\HasPaymentHash;
+use AdminPayments\Contracts\Concerns\Orderable;
+use AdminPayments\Events\PaymentPaid;
 use Admin\Eloquent\AdminModel;
+use Admin\Fields\Group;
+use Carbon\Carbon;
+use Exception;
+use Log;
+use PaymentService;
 
 class Payment extends AdminModel
 {
+    use HasPaymentHash;
+
     /*
      * Model created date, for ordering tables in database and in user interface
      */
@@ -37,11 +47,86 @@ class Payment extends AdminModel
                 'price' => 'name:Cena|type:decimal|required',
                 'uniqid' => 'name:uniqid|max:30|required',
                 'payment_id' => 'name:Payment id|index',
+                Group::fields([
+                    'payment_method_id' => 'name:Typ platby|belongsTo:payments_methods,name|required',
+                ])->if(config('adminpayments.payment_methods.enabled', true)),
                 'status' => 'name:Status|max:10|default:waiting|index|required',
+                'paid_at' => 'name:Zaplatené dňa|type:datetime|hidden',
                 'data' => 'name:Data|type:json',
             ],
-            config('adminpayments.payment_methods.enabled', true)
-                ? [ 'payment_method_id' => 'name:Typ platby|belongsTo:payments_methods,name|required' ] : [],
         );
+    }
+
+    public function getOrder() : Orderable
+    {
+        throw new \Exception('No payment model defined.');
+    }
+
+    public function onPaymentPaid()
+    {
+        //If payment is paid already. Do nothing
+        if ( $this->paid_at || $this->status == 'paid' ) {
+            return;
+        }
+
+        $this->update([
+            'status' => 'paid',
+            'paid_at' => Carbon::now(),
+        ]);
+
+        $order = $this->getOrder();
+
+        event(new PaymentPaid($this, $order));
+
+        $order->onPaymentPaid();
+
+        //Send notification email
+        if ( $order->hasPaidNotification() ) {
+            //Generate invoice
+            $invoice = $this->makePaymentInvoice('invoice');
+
+            $order->sendPaymentEmail($invoice);
+        }
+    }
+
+    /**
+     * Generate invoice for order
+     *
+     * @return  Invoice|null
+     */
+    public function makePaymentInvoice($type = 'proform', $data = [])
+    {
+        $order = $this->getOrder();
+
+        if ( $order->hasInvoices() == false ){
+            return;
+        }
+
+        try {
+            //Generate proform
+            $invoice = $order->makeInvoice($type, $data);
+
+            //Set unpaid proform as paid
+            if ( $invoice->type == 'invoice' && $invoice->paid_at && $invoice->proform && !$invoice->proform->paid_at ){
+                $invoice->proform->update([
+                    'paid_at' => $invoice->paid_at,
+                ]);
+            }
+
+            return $invoice;
+        } catch (Exception $error){
+            Log::error($error);
+
+            $order->log()->create([
+                'type' => 'error',
+                'code' => 'INVOICE_ERROR',
+                'log' => $error->getMessage()
+            ]);
+
+            //Debug
+            if ( PaymentService::isDebug() ) {
+                throw $error;
+            }
+        }
     }
 }

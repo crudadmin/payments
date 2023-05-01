@@ -2,10 +2,7 @@
 
 namespace AdminPayments\Mail;
 
-use AdminPayments\Contracts\Collections\CartCollection;
-use AdminPayments\Models\Orders\Order;
-use Cart;
-use Discounts;
+use AdminPayments\Contracts\Concerns\Orderable;
 use Gogol\Invoices\Model\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -25,7 +22,7 @@ class PaymentPaid extends Mailable
      *
      * @return void
      */
-    public function __construct(Order $order, Invoice $invoice = null, $message = null)
+    public function __construct(Orderable $order, Invoice $invoice = null, $message = null)
     {
         $this->order = $order;
         $this->invoice = $invoice;
@@ -39,15 +36,16 @@ class PaymentPaid extends Mailable
      */
     public function build()
     {
+        $order = $this->order;
+
+        $content = $order->getPaidNotificationContent();
 
         $mail = $this
                 //Ability to rewrite subject if is not set
-                ->subject(
-                    $this->subject ?: sprintf(_('Potvrdenie platby k objednávke č. %s'), $this->order->number)
-                )
-                ->markdown('admineshop::mail.order.paid', [
-                    'message' => $this->message ?: _('Vaša objednávka bola úspešne dokončená a zaplatená. Ďakujeme!'),
-                    'order' => $this->order,
+                ->subject($this->subject ?: $content['subject'])
+                ->markdown('adminpayments::mail.payment.paid', [
+                    'message' => $this->message ?: $content['content'],
+                    'order' => $order,
                     'invoice' => $this->invoice,
                 ]);
 

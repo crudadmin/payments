@@ -1,15 +1,15 @@
 <?php
 
-namespace AdminPayments\Contracts\Payments;
+namespace AdminPayments\Gateways\Paypal;
 
-use AdminPayments\Contracts\Payments\Exceptions\PaymentGateException;
-use AdminPayments\Contracts\Payments\Exceptions\PaymentResponseException;
-use AdminPayments\Contracts\Payments\PaymentHelper;
-use AdminPayments\Contracts\Payments\Paypal\HasPaypalSupport;
+use AdminPayments\Gateways\Exceptions\PaymentGateException;
+use AdminPayments\Gateways\Exceptions\PaymentResponseException;
+use AdminPayments\Gateways\PaymentGateway;
+use AdminPayments\Gateways\Paypal\HasPaypalSupport;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use Exception;
 
-class PaypalPayment extends PaymentHelper
+class PaypalPayment extends PaymentGateway
 {
     use HasPaypalSupport;
 

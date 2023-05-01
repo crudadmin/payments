@@ -1,6 +1,6 @@
 <?php
 
-namespace AdminPayments\Contracts\Order\Concerns;
+namespace AdminPayments\Contracts\Concerns;
 
 trait HasProviders
 {

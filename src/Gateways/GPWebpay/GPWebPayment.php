@@ -1,21 +1,21 @@
 <?php
 
-namespace AdminPayments\Contracts\Payments;
+namespace AdminPayments\Gateways\GPWebpay;
 
-use AdminPayments\Contracts\Payments\GPWebpay\Api as WebpayApi;
-use AdminPayments\Contracts\Payments\GPWebpay\PaymentRequest;
-use AdminPayments\Contracts\Payments\GPWebpay\PaymentResponse;
-use AdminPayments\Contracts\Payments\GPWebpay\PaymentResponseException as WebpayPaymentResponseException;
-use AdminPayments\Contracts\Payments\GPWebpay\Signer;
-use AdminPayments\Contracts\Payments\GPWebpay\FinalizePaymentRequest;
-use AdminPayments\Contracts\Payments\Exceptions\PaymentGateException;
-use AdminPayments\Contracts\Payments\Exceptions\PaymentResponseException;
-use AdminPayments\Contracts\Payments\PaymentHelper;
+use AdminPayments\Gateways\GPWebpay\Api as WebpayApi;
+use AdminPayments\Gateways\GPWebpay\PaymentRequest;
+use AdminPayments\Gateways\GPWebpay\PaymentResponse;
+use AdminPayments\Gateways\GPWebpay\PaymentResponseException as WebpayPaymentResponseException;
+use AdminPayments\Gateways\GPWebpay\Signer;
+use AdminPayments\Gateways\GPWebpay\FinalizePaymentRequest;
+use AdminPayments\Gateways\Exceptions\PaymentGateException;
+use AdminPayments\Gateways\Exceptions\PaymentResponseException;
+use AdminPayments\Gateways\PaymentGateway;
 use Exception;
 use Store;
 use Log;
 
-class GPWebPayment extends PaymentHelper
+class GPWebPayment extends PaymentGateway
 {
     private $webpay;
 
@@ -63,7 +63,7 @@ class GPWebPayment extends PaymentHelper
             $request = new PaymentRequest(
                 $number,
                 $payment->price,
-                constant('\AdminPayments\Contracts\Payments\GPWebpay\PaymentRequest::'.$currencyCode),
+                constant('\AdminPayments\Gateways\GPWebpay\PaymentRequest::'.$currencyCode),
                 0,
                 $this->getResponseUrl('status'),
                 $order->getKey(),

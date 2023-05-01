@@ -1,6 +1,6 @@
 <?php
 
-namespace AdminPayments\Contracts\Payments\GPWebpay;
+namespace AdminPayments\Gateways\GPWebpay;
 
 class Signer {
 

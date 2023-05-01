@@ -35,7 +35,6 @@ class Payment extends AdminModel
         return array_merge(
             [
                 'price' => 'name:Cena|type:decimal|required',
-                'order' => 'name:Objednavka|belongsTo:orders,name|required',
                 'uniqid' => 'name:uniqid|max:30|required',
                 'payment_id' => 'name:Payment id|index',
                 'status' => 'name:Status|max:10|default:waiting|index|required',

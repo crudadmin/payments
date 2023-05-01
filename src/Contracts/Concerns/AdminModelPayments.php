@@ -1,23 +1,21 @@
 <?php
 
-namespace AdminPayments\Eloquent\Concerns;
+namespace AdminPayments\Contracts\Concerns;
 
-use AdminPayments\Mail\OrderPaid;
+use AdminPayments\Mail\PaymentPaid;
 use AdminPayments\Models\Invoice\Invoice;
 use Exception;
 use Illuminate\Support\Facades\Mail;
 use Log;
-use OrderService;
+use PaymentService;
 
-trait OrderPayments
+trait AdminModelPayments
 {
     public function getPaymentData($paymentMethodId = null)
     {
         $paymentMethodId = $paymentMethodId ?: $this->payment_method_id;
 
-        $this->bootOrderIntoOrderService();
-
-        if ( !($paymentClass = OrderService::bootPaymentProvider($this, $paymentMethodId)) ){
+        if ( !($paymentClass = PaymentService::bootPaymentProvider($this, $paymentMethodId)) ){
             return [];
         }
 
@@ -43,14 +41,14 @@ trait OrderPayments
 
     public function getPaymentProvider($paymentMethodId = null)
     {
-        return OrderService::getPaymentProvider($paymentMethodId);
+        return PaymentService::setOrder($this)->getPaymentProvider($paymentMethodId);
     }
 
     public function getPaymentUrl($paymentMethodId = null)
     {
         $paymentMethodId = $paymentMethodId ?: $this->payment_method_id;
 
-        if ( !($paymentClass = OrderService::bootPaymentProvider($this, $paymentMethodId)) ){
+        if ( !($paymentClass = PaymentService::bootPaymentProvider($this, $paymentMethodId)) ){
             return [];
         }
 
@@ -63,9 +61,7 @@ trait OrderPayments
     {
         $paymentMethodId = $paymentMethodId ?: $this->payment_method_id;
 
-        $this->bootOrderIntoOrderService();
-
-        if ( !($paymentClass = OrderService::getPaymentProvider($paymentMethodId)) ){
+        if ( !($paymentClass = PaymentService::getPaymentProvider($paymentMethodId)) ){
             return;
         }
 
@@ -78,14 +74,14 @@ trait OrderPayments
     {
         try {
             Mail::to($this->email)->send(
-                new OrderPaid($this, $invoice)
+                new PaymentPaid($this, $invoice)
             );
 
             if ( $invoice instanceof Invoice ) {
                 $invoice->setNotified();
             }
         } catch (Exception $e){
-            Log::channel('store')->error($e);
+            Log::channel('payments')->error($e);
 
             $this->log()->create([
                 'type' => 'error',

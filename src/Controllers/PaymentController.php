@@ -1,14 +1,13 @@
 <?php
 
-namespace AdminPayments\Controllers\Payments;
+namespace AdminPayments\Controllers;
 
 use Admin;
 use AdminPayments\Contracts\Order\Exceptions\OrderException;
-use AdminPayments\Contracts\Payments\PaymentVerifier;
-use AdminPayments\Contracts\Payments\Paypal\PaypalWebhooks;
-use AdminPayments\Contracts\Payments\Stripe\StripeWebhooks;
-use AdminPayments\Models\Orders\Order;
-use AdminPayments\Models\Orders\Payment;
+use AdminPayments\Gateways\PaymentVerifier;
+use AdminPayments\Gateways\Paypal\PaypalWebhooks;
+use AdminPayments\Gateways\Stripe\StripeWebhooks;
+use AdminPayments\Models\Payments\Payment;
 use Admin\Controllers\Controller;
 use Exception;
 use Illuminate\Http\Request;

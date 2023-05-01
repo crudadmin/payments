@@ -1,6 +1,6 @@
 <?php
 
-namespace AdminPayments\Contracts\Payments\Exceptions;
+namespace AdminPayments\Gateways\Exceptions;
 
 use AdminPayments\Contracts\Order\Exceptions\OrderException;
 

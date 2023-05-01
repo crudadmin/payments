@@ -1,11 +1,11 @@
 <?php
 
-namespace AdminPayments\Contracts\Payments;
+namespace AdminPayments\Gateways;
 
-use AdminPayments\Contracts\Order\OrderProvider;
-use AdminPayments\Contracts\Payments\Exceptions\PaymentResponseException;
+use AdminPayments\Contracts\ConfigProvider;
+use AdminPayments\Gateways\Exceptions\PaymentResponseException;
 
-class PaymentHelper extends OrderProvider
+class PaymentGateway extends ConfigProvider
 {
     private $payment;
 
@@ -102,7 +102,7 @@ class PaymentHelper extends OrderProvider
 
     public function getResponseUrl($type)
     {
-        return action('\AdminPayments\Controllers\Payments\PaymentController@paymentStatus', [
+        return action('\AdminPayments\Controllers\PaymentController@paymentStatus', [
             $this->getPayment()->getKey(),
             $type,
             $this->getOrderHash($type),
@@ -113,7 +113,7 @@ class PaymentHelper extends OrderProvider
     {
         $type = 'postpayment';
 
-        return action('\AdminPayments\Controllers\Payments\PaymentController@postPayment', [
+        return action('\AdminPayments\Controllers\PaymentController@postPayment', [
             $this->getOrder()->getKey(),
             $this->getOrderHash($type),
         ]);

@@ -1,16 +1,16 @@
 <?php
 
-namespace AdminPayments\Contracts\Payments;
+namespace AdminPayments\Gateways\Stripe;
 
-use AdminPayments\Contracts\Payments\Exceptions\PaymentGateException;
-use AdminPayments\Contracts\Payments\Exceptions\PaymentResponseException;
-use AdminPayments\Contracts\Payments\PaymentHelper;
+use AdminPayments\Gateways\Exceptions\PaymentGateException;
+use AdminPayments\Gateways\Exceptions\PaymentResponseException;
+use AdminPayments\Gateways\PaymentGateway;
 use Exception;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
 use Store;
 
-class StripePayment extends PaymentHelper
+class StripePayment extends PaymentGateway
 {
     public $client;
 

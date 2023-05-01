@@ -1,6 +1,6 @@
 <?php
 
-namespace AdminPayments\Contracts\Payments\Paypal;
+namespace AdminPayments\Gateways\Paypal;
 
 use App\Models\Order\OrdersItem;
 use Log;

@@ -1,9 +1,9 @@
 <?php
 
-namespace AdminPayments\Contracts\Order\Concerns;
+namespace AdminPayments\Contracts\Concerns;
 
 use Admin;
-use AdminPayments\Contracts\Payments\GopayPayment;
+use AdminPayments\Gateways\GopayPayment;
 use AdminPayments\Events\OrderPaid as OrderPaidEvent;
 use AdminPayments\Models\Orders\Payment;
 use Carbon\Carbon;
@@ -94,12 +94,13 @@ trait HasPayments
             return false;
         }
 
+        $this->setOrder($order);
+
         return Admin::cache('payments.'.$order->getKey().'.'.$paymentMethodId.'.data', function() use ($order, $paymentMethodId) {
             try {
                 $payment = $this->makePayment($order, $paymentMethodId);
 
                 $paymentClass = $this->getPaymentProvider($paymentMethodId);
-
                 $paymentClass->setPayment($payment);
 
                 $paymentClass->setResponse(

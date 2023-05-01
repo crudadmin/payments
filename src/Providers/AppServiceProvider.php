@@ -18,7 +18,7 @@ class AppServiceProvider extends AdminHelperServiceProvider
     protected $facades = [
         'PaymentService' => [
             'facade' => \AdminPayments\Facades\PaymentServiceFacade::class,
-            'class' => ['admin.payments.service', \AdminEshop\Contracts\PaymentService::class],
+            'class' => ['admin.payments.service', \AdminPayments\Contracts\PaymentService::class],
         ],
     ];
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace AdminPayments\Contracts\Payments\Stripe;
+namespace AdminPayments\Gateways\Stripe;
 
 use AdminPayments\Models\Orders\Payment;
 use OrderService;

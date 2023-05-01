@@ -1,13 +1,12 @@
 <?php
 
-namespace AdminPayments\Contracts\Order;
+namespace AdminPayments\Contracts;
 
-use AdminPayments\Models\Delivery\Delivery;
-use AdminPayments\Models\Orders\Order;
-use AdminPayments\Models\Store\PaymentsMethod;
+use AdminPayments\Concerns\Orderable;
 use Arr;
+use Gogol\Invoices\Model\PaymentsMethod;
 
-class OrderProvider
+class ConfigProvider
 {
     protected $options = [];
 
@@ -24,8 +23,6 @@ class OrderProvider
 
     protected $paymentMethod;
 
-    protected $delivery;
-
     /**
      * Constructing of order provider
      *
@@ -38,21 +35,19 @@ class OrderProvider
         $this->identifier = $identifier;
     }
 
-    public function setOrder(Order $order = null)
+    /**
+     * AdminPayments\Contracts\Concerns\Orderable $order
+     *
+     * @param  [type]  $order
+     */
+    public function setOrder($order = null)
     {
         $this->order = $order;
 
         return $this;
     }
 
-    public function setDelivery($delivery)
-    {
-        $this->delivery = $delivery;
-
-        return $this;
-    }
-
-    public function setPaymentMethod($paymentMethod)
+    public function setPaymentMethod(PaymentsMethod $paymentMethod)
     {
         $this->paymentMethod = $paymentMethod;
 
@@ -95,16 +90,6 @@ class OrderProvider
         $value = Arr::get($options, $key);
 
         return is_null($value) ? $default : $value;
-    }
-
-    public function getPaymentMethod()
-    {
-        return $this->paymentMethod;
-    }
-
-    public function getDelivery()
-    {
-        return $this->delivery;
     }
 
     public function toArray()

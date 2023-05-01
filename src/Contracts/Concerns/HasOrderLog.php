@@ -1,6 +1,6 @@
 <?php
 
-namespace AdminPayments\Eloquent\Concerns;
+namespace AdminPayments\Contracts\Concerns;
 
 use AdminPayments\Contracts\Order\Exceptions\OrderException;
 use Exception;

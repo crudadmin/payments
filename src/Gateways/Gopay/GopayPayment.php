@@ -1,15 +1,15 @@
 <?php
 
-namespace AdminPayments\Contracts\Payments;
+namespace AdminPayments\Gateways\Gopay;
 
-use AdminPayments\Contracts\Payments\Exceptions\PaymentGateException;
-use AdminPayments\Contracts\Payments\Exceptions\PaymentResponseException;
-use AdminPayments\Contracts\Payments\PaymentHelper;
+use AdminPayments\Gateways\Exceptions\PaymentGateException;
+use AdminPayments\Gateways\Exceptions\PaymentResponseException;
+use AdminPayments\Gateways\PaymentGateway;
 use Exception;
 use Gopay;
 use Log;
 
-class GopayPayment extends PaymentHelper
+class GopayPayment extends PaymentGateway
 {
     private $gopay;
 

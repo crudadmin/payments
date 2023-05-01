@@ -89,17 +89,23 @@ class Payment extends AdminModel
         return $this->hasOne($relatedModel::class, 'id', 'row_id');
     }
 
-    public function onPaymentPaid()
+    public function onPaymentPaid($processType = null)
     {
         //If payment is paid already. Do nothing
         if ( $this->paid_at || $this->status == 'paid' ) {
             return;
         }
 
-        $this->update([
-            'status' => 'paid',
-            'paid_at' => Carbon::now(),
-        ]);
+        $this->status = 'paid';
+        $this->paid_at = Carbon::now();
+
+        if ( $processType ) {
+            $this->data = ($this->data ?: []) + [
+                'paid_by' => $processType,
+            ];
+        }
+
+        $this->save();
 
         $order = $this->order;
 
@@ -138,7 +144,7 @@ class Payment extends AdminModel
             //Default paid callback
             else {
                 //Update payment status
-                $this->onPaymentPaid();
+                $this->onPaymentPaid($type);
             }
 
             //If redirect is not set yet

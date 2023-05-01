@@ -70,7 +70,7 @@ class StripeWebhooks extends PaymentWebhook
 
             $payment = $this->getPayment($session->id);
 
-            $payment->isPaymentPaid();
+            $payment->isPaymentPaid('webhook');
         }
     }
 }

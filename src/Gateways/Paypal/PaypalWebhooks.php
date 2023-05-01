@@ -53,7 +53,7 @@ class PaypalWebhooks extends PaymentWebhook
 
         //When order is approved, we need initialize capture of order.
         if ( isset($body['event_type']) && in_array($body['event_type'], ['CHECKOUT.ORDER.APPROVED']) ) {
-            return $payment->isPaymentPaid();
+            return $payment->isPaymentPaid('webhook');
         }
     }
 }

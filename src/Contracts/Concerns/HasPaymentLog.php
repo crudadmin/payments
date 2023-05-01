@@ -3,7 +3,7 @@
 namespace AdminPayments\Contracts\Concerns;
 
 use Exception;
-use AdminPayments\Gateways\Contracts\Exceptions\PaymentException;
+use AdminPayments\Contracts\Exceptions\PaymentException;
 
 trait HasPaymentLog
 {

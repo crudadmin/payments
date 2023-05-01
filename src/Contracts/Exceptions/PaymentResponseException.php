@@ -1,6 +1,6 @@
 <?php
 
-namespace AdminPayments\Gateways\Exceptions;
+namespace AdminPayments\Gateways\Contracts\Exceptions;
 
 class PaymentResponseException extends PaymentException
 {

@@ -2,8 +2,8 @@
 
 namespace AdminPayments\Gateways\Stripe;
 
-use AdminPayments\Gateways\Exceptions\PaymentGateException;
-use AdminPayments\Gateways\Exceptions\PaymentResponseException;
+use AdminPayments\Gateways\Contracts\Exceptions\PaymentGateException;
+use AdminPayments\Gateways\Contracts\Exceptions\PaymentResponseException;
 use AdminPayments\Gateways\PaymentGateway;
 use Exception;
 use Stripe\Exception\InvalidRequestException;

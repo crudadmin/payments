@@ -2,8 +2,8 @@
 
 namespace AdminPayments\Gateways\Gopay;
 
-use AdminPayments\Gateways\Exceptions\PaymentGateException;
-use AdminPayments\Gateways\Exceptions\PaymentResponseException;
+use AdminPayments\Gateways\Contracts\Exceptions\PaymentGateException;
+use AdminPayments\Gateways\Contracts\Exceptions\PaymentResponseException;
 use AdminPayments\Gateways\PaymentGateway;
 use Exception;
 use Gopay;

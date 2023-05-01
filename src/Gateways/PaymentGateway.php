@@ -3,7 +3,7 @@
 namespace AdminPayments\Gateways;
 
 use AdminPayments\Contracts\ConfigProvider;
-use AdminPayments\Gateways\Exceptions\PaymentResponseException;
+use AdminPayments\Gateways\Contracts\Exceptions\PaymentResponseException;
 use PaymentService;
 
 class PaymentGateway extends ConfigProvider

@@ -3,11 +3,6 @@
 namespace AdminPayments\Gateways\Stripe;
 
 use AdminPayments\Gateways\Stripe\StripePayment;
-use AdminPayments\Models\Clients\Client;
-use AdminPayments\Models\Orders\Payment;
-use Exception;
-use Log;
-use OrderService;
 use Stripe\Stripe;
 
 trait HasClientStripe

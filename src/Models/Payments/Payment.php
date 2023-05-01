@@ -9,8 +9,10 @@ use Admin\Eloquent\AdminModel;
 use Admin\Fields\Group;
 use Carbon\Carbon;
 use Exception;
+use Admin;
 use Log;
 use PaymentService;
+use DB;
 
 class Payment extends AdminModel
 {
@@ -44,9 +46,11 @@ class Payment extends AdminModel
     {
         return array_merge(
             [
-                'price' => 'name:Cena|type:decimal|required',
                 'uniqid' => 'name:uniqid|max:30|required',
+                'table' => 'name:Model|max:30|index',
+                'row_id' => 'name:Row id|type:integer|index|required',
                 'payment_id' => 'name:Payment id|index',
+                'price' => 'name:Cena|type:decimal|required',
                 Group::fields([
                     'payment_method_id' => 'name:Typ platby|belongsTo:payments_methods,name|required',
                 ])->if(config('adminpayments.payment_methods.enabled', true)),
@@ -57,9 +61,32 @@ class Payment extends AdminModel
         );
     }
 
-    public function getOrder() : Orderable
+    /*
+     * Add empty rows
+     */
+    public function onMigrateEnd($table, $schema)
     {
-        throw new \Exception('No payment model defined.');
+        if ( $schema->hasColumn($this->getTable(), 'order_id') ) {
+            $this->getConnection()->table($this->getTable())
+                ->whereNull('table')
+                ->whereNotNull('order_id')
+                ->update([
+                    'table' => 'orders',
+                    'row_id' => DB::raw('order_id'),
+                ]);
+        }
+    }
+
+    /**
+     * Returns relation model
+     *
+     * @return  Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function order()
+    {
+        $relatedModel = Admin::getModelByTable($this->getValue('table'));
+
+        return $this->hasOne($relatedModel::class, 'id', 'row_id');
     }
 
     public function onPaymentPaid()
@@ -74,7 +101,7 @@ class Payment extends AdminModel
             'paid_at' => Carbon::now(),
         ]);
 
-        $order = $this->getOrder();
+        $order = $this->order;
 
         event(new PaymentPaid($this, $order));
 
@@ -91,7 +118,7 @@ class Payment extends AdminModel
 
     public function isPaymentPaid($type = 'notification')
     {
-        $provider = PaymentService::setOrder($this->getOrder())
+        $provider = PaymentService::setOrder($this->order)
                                     ->getPaymentProvider($this->payment_method_id);
 
         $provider->setPayment($this);
@@ -123,7 +150,7 @@ class Payment extends AdminModel
                 throw $e;
             }
 
-            $log = $this->getOrder()->logException($e, function($log) use ($e) {
+            $log = $this->order->logException($e, function($log) use ($e) {
                 $log->code = $log->code ?: 'PAYMENT_ERROR';
             });
 

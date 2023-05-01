@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Support\Facades\Mail;
 use Log;
 use PaymentService;
+use Admin;
 
 trait HasPayments
 {
@@ -24,6 +25,11 @@ trait HasPayments
     public function hasPaidNotification()
     {
         return config('adminpayments.notificaions.paid', true);
+    }
+
+    public function getNumberAttribute()
+    {
+        return $this->getKey();
     }
 
     public function isPaid() : bool
@@ -109,7 +115,9 @@ trait HasPayments
     public function makePayment($paymentMethodId = null)
     {
         return $this->payments()->create([
-            'price' => $this->price_vat,
+            'table' => $this->getTable(),
+            'row_id' => $this->getKey(),
+            'price' => $this->price_vat ?: 0,
             'payment_method_id' => $paymentMethodId ?: $this->getPaymentMethodId(),
             'uniqid' => uniqid().str_random(10),
         ]);
@@ -143,6 +151,17 @@ trait HasPayments
     public function getPaymentMethodId()
     {
         return $this->payment_method_id;
+    }
+
+    public function payments()
+    {
+        return $this
+            ->hasMany(
+                Admin::getModel('Payment')::class,
+                'row_id',
+                'id',
+            )
+            ->where('payments.table', $this->getTable());
     }
 }
 

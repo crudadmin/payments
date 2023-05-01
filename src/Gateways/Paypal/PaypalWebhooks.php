@@ -39,7 +39,7 @@ class PaypalWebhooks extends PaymentWebhook
 
         $payment = $this->getPayment($paymentId);
 
-        if ( !($order = $payment->getOrder()) ){
+        if ( !($order = $payment->order) ){
             throw new Exception('Order could not be found');
         }
 

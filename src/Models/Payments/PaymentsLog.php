@@ -43,7 +43,7 @@ class PaymentsLog extends AdminModel
 
     public function belongsToModel()
     {
-        return config('adminpayments.logger_models', []);
+        return config('adminpayments.models', []);
     }
 
     /*

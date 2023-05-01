@@ -2,6 +2,13 @@
 
 return [
     /**
+     * Supported payment models
+     */
+    'models' => [
+        // /App\Order::class,
+    ],
+
+    /**
      * Payment methods settings
      */
     'payment_methods' => [
@@ -21,9 +28,5 @@ return [
 
     'notifications' => [
         'paid' => true,
-    ],
-
-    'logger_models' => [
-        // /App\Order::class,
     ],
 ];

@@ -1,0 +1,33 @@
+{
+    "name": "crudadmin/payments",
+    "type": "library",
+    "description": "Laravel payments package for administration based on crudadmin system",
+    "keywords": ["eshop", "admin", "laravel"],
+    "homepage": "https://www.marekgogol.sk",
+    "license": "MIT",
+    "authors": [
+        { "name": "Marek Gogoľ", "email": "info@marekgogol.sk" }
+    ],
+    "require": {
+        "php": ">=8.0.0",
+        "laravel/framework": "^6|^7|^8|^9",
+        "crudadmin/crudadmin": "^4.0|dev-master",
+        "marekgogol/invoices": "^4.0|dev-master",
+        "gopay/payments-sdk-php": "^1.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "AdminPayments\\": "src"
+        },
+        "files": [
+            "src/Helpers/helpers.php"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AdminPayments\\Providers\\AppServiceProvider"
+            ]
+        }
+    }
+}

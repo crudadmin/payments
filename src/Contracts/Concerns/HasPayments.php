@@ -2,15 +2,16 @@
 
 namespace AdminPayments\Contracts\Concerns;
 
+use Admin;
 use AdminPayments\Contracts\Concerns\HasPaymentHash;
 use AdminPayments\Contracts\Concerns\HasPaymentLog;
 use AdminPayments\Mail\PaymentPaid;
 use AdminPayments\Models\Invoice\Invoice;
+use AdminPayments\Models\Payments\PaymentsLog;
 use Exception;
 use Illuminate\Support\Facades\Mail;
 use Log;
 use PaymentService;
-use Admin;
 
 trait HasPayments
 {
@@ -125,6 +126,10 @@ trait HasPayments
 
     public function sendPaymentEmail($invoice = null)
     {
+        if ( !$this->email ) {
+            return;
+        }
+
         try {
             Mail::to($this->email)->send(
                 new PaymentPaid($this, $invoice)
@@ -141,6 +146,11 @@ trait HasPayments
                 'code' => 'email-payment-done-error',
             ]);
         }
+    }
+
+    public function log()
+    {
+        return $this->hasMany(PaymentsLog::class);
     }
 
     /**

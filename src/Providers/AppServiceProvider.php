@@ -59,7 +59,7 @@ class AppServiceProvider extends AdminHelperServiceProvider
 
     private function registerModels()
     {
-        // Admin::registerAdminModels(__dir__ . '/../Models/Store/**', 'AdminPayments\Models\Store');
+        Admin::registerAdminModels(__dir__ . '/../Models/Payments/**', 'AdminPayments\Models\Payments');
     }
 
     private function addPublishes()

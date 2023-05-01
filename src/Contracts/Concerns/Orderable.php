@@ -2,6 +2,7 @@
 
 namespace AdminPayments\Contracts\Concerns;
 
+use AdminPayments\Models\Payments\Payment;
 use Gogol\Invoices\Model\Invoice;
 
 interface Orderable
@@ -51,7 +52,7 @@ interface Orderable
     /**
      * On successfull payment
      */
-    public function onPaymentPaid();
+    public function onPaymentPaid(Payment $payment);
 
     /**
      * Should we generate invoice for a paid order?

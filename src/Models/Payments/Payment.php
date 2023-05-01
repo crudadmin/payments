@@ -111,7 +111,7 @@ class Payment extends AdminModel
 
         event(new PaymentPaid($this, $order));
 
-        $order->onPaymentPaid();
+        $order->onPaymentPaid($this);
 
         //Send notification email
         if ( $order->hasPaidNotification() ) {
@@ -122,12 +122,19 @@ class Payment extends AdminModel
         }
     }
 
-    public function isPaymentPaid($type = 'notification')
+    public function getPaymentProvider()
     {
         $provider = PaymentService::setOrder($this->order)
                                     ->getPaymentProvider($this->payment_method_id);
 
         $provider->setPayment($this);
+
+        return $provider;
+    }
+
+    public function isPaymentPaid($type = 'notification')
+    {
+        $provider = $this->getPaymentProvider();
 
         $redirect = null;
 

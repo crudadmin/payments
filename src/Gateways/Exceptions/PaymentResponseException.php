@@ -2,9 +2,7 @@
 
 namespace AdminPayments\Gateways\Exceptions;
 
-use AdminPayments\Contracts\Order\Exceptions\OrderException;
-
-class PaymentResponseException extends OrderException
+class PaymentResponseException extends PaymentException
 {
     public $code = 'PAYMENT_UNVERIFIED';
 }

@@ -3,13 +3,9 @@
 namespace AdminPayments\Controllers;
 
 use Admin;
-use AdminPayments\Contracts\Order\Exceptions\OrderException;
-use AdminPayments\Gateways\PaymentVerifier;
 use AdminPayments\Gateways\Paypal\PaypalWebhooks;
 use AdminPayments\Gateways\Stripe\StripeWebhooks;
 use Admin\Controllers\Controller;
-use Exception;
-use Illuminate\Http\Request;
 use PaymentService;
 
 class PaymentController extends Controller

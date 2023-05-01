@@ -2,10 +2,10 @@
 
 namespace AdminPayments\Contracts\Concerns;
 
-use AdminPayments\Contracts\Order\Exceptions\OrderException;
 use Exception;
+use AdminPayments\Gateways\Exceptions\PaymentException;
 
-trait HasOrderLog
+trait HasPaymentLog
 {
     public function logReport($type, $code, $message = null, $log = null, callable $callback = null)
     {
@@ -30,7 +30,7 @@ trait HasOrderLog
     {
         $code = $e->getCode();
 
-        if ( $e instanceof OrderException ) {
+        if ( $e instanceof PaymentException ) {
             $message = $e->getMessage();
             $log = $e->getLog();
         } else {

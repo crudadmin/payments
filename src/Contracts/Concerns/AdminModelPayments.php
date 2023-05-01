@@ -3,6 +3,7 @@
 namespace AdminPayments\Contracts\Concerns;
 
 use AdminPayments\Contracts\Concerns\HasPaymentHash;
+use AdminPayments\Contracts\Concerns\HasPaymentLog;
 use AdminPayments\Mail\PaymentPaid;
 use AdminPayments\Models\Invoice\Invoice;
 use Exception;
@@ -12,7 +13,8 @@ use PaymentService;
 
 trait AdminModelPayments
 {
-    use HasPaymentHash;
+    use HasPaymentHash,
+        HasPaymentLog;
 
     public function hasInvoices()
     {

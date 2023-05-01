@@ -22,4 +22,8 @@ return [
     'notifications' => [
         'paid' => true,
     ],
+
+    'logger_models' => [
+        // /App\Order::class,
+    ],
 ];

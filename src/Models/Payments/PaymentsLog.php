@@ -4,6 +4,7 @@ namespace AdminPayments\Models\Payments;
 
 use Admin\Eloquent\AdminModel;
 use Admin\Fields\Group;
+use Admin;
 
 class PaymentsLog extends AdminModel
 {
@@ -25,12 +26,6 @@ class PaymentsLog extends AdminModel
 
     protected $icon = 'fa-exclamation-triangle';
 
-    /*
-     * Model Parent
-     * Eg. Articles::class,
-     */
-    protected $belongsToModel = Payment::class;
-
     protected $publishable = false;
 
     protected $sortable = false;
@@ -39,11 +34,17 @@ class PaymentsLog extends AdminModel
 
     protected $active = false;
 
-    public $timestamps = false;
 
     protected $settings = [
         'title.insert' => 'Nové hlásenie',
     ];
+
+    public $timestamps = false;
+
+    public function belongsToModel()
+    {
+        return config('adminpayments.logger_models', []);
+    }
 
     /*
      * Automatic form and database generation

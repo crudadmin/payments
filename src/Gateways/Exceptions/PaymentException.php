@@ -1,10 +1,10 @@
 <?php
 
-namespace AdminPayments\Contracts\Order\Exceptions;
+namespace AdminPayments\Gateways\Exceptions;
 
 use Exception;
 
-class OrderException extends Exception
+class PaymentException extends Exception
 {
     /**
      * Error log

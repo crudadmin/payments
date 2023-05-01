@@ -175,8 +175,7 @@ class GopayPayment extends PaymentGateway
 
         //Ak je vykonana poziadavka v poriadku
         if ($response->hasSucceed()) {
-            //TODO:
-            //$this->setPaymentId($response->json[...])
+            $this->setPaymentId($response->json['id']);
 
             return $response->json['gw_url'];
         } else {
@@ -194,14 +193,11 @@ class GopayPayment extends PaymentGateway
             throw new Exception('Gopay instance has not been found.');
         }
 
-        //TODO: ID will be received from payment as parameter in this method.
         if ( !($id = ($id ?: request('id'))) ) {
             throw new Exception('Gopay ID is missing.');
         }
 
         $response = $this->gopay->getStatus($id);
-
-        $errorResponse = '';
 
         if ( isset($response->json['state']) ) {
             if ( $response->json['state'] == 'PAID' ) {
@@ -213,7 +209,7 @@ class GopayPayment extends PaymentGateway
            $errorResponse = 'Wrong GOPAY Payment response: '.(string)$response;
         }
 
-        throw new PaymentResponseException($errorResponse);
+        throw new PaymentResponseException($errorResponse ?? '');
     }
 }
 

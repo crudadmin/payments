@@ -70,9 +70,9 @@ interface Orderable
     /**
      * Generate and return invoice
      *
-     * @return  Gogol\Invoices\Model\Invoice
+     * @return  Gogol\Invoices\Model\Invoice|null
      */
-    public function makeInvoice() : Invoice;
+    public function makeInvoice();
 
     /**
      * Returns payment hash for verification

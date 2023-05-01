@@ -2,9 +2,7 @@
 
 namespace AdminPayments\Gateways\Exceptions;
 
-use AdminPayments\Contracts\Order\Exceptions\OrderException;
-
-class PaymentGateException extends OrderException
+class PaymentGateException extends PaymentException
 {
     public $code = 'PAYMENT_ERROR';
 }

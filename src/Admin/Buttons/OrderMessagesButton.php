@@ -13,7 +13,7 @@ class OrderMessagesButton extends Button
     public function __construct(AdminModel $row)
     {
         //Name of button on hover
-        $this->name = $this->getOrderLogContent($row, false);
+        $this->name = $this->getLogContent($row, false);
 
         $hasError = $row->log->where('type', 'error')->count() > 0;
 
@@ -30,7 +30,7 @@ class OrderMessagesButton extends Button
         $this->tooltipEncode = false;
     }
 
-    private function getOrderLogContent($row, $withLog = false)
+    private function getLogContent($row, $withLog = false)
     {
         $lines = [
             '<strong>'._('Hlásenia').':</strong>'
@@ -67,7 +67,7 @@ class OrderMessagesButton extends Button
     public function fire(AdminModel $row)
     {
         return $this->title(_('Hlásenia').' ('.$row->log->count().')')->warning(
-            $this->getOrderLogContent($row, true)
+            $this->getLogContent($row, true)
         );
     }
 }

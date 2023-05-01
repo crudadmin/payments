@@ -83,50 +83,9 @@ class Payment extends AdminModel
         //Send notification email
         if ( $order->hasPaidNotification() ) {
             //Generate invoice
-            $invoice = $this->makePaymentInvoice('invoice');
+            $invoice = $order->makeInvoice('invoice');
 
             $order->sendPaymentEmail($invoice);
-        }
-    }
-
-    /**
-     * Generate invoice for order
-     *
-     * @return  Invoice|null
-     */
-    public function makePaymentInvoice($type = 'proform', $data = [])
-    {
-        $order = $this->getOrder();
-
-        if ( $order->hasInvoices() == false ){
-            return;
-        }
-
-        try {
-            //Generate proform
-            $invoice = $order->makeInvoice($type, $data);
-
-            //Set unpaid proform as paid
-            if ( $invoice->type == 'invoice' && $invoice->paid_at && $invoice->proform && !$invoice->proform->paid_at ){
-                $invoice->proform->update([
-                    'paid_at' => $invoice->paid_at,
-                ]);
-            }
-
-            return $invoice;
-        } catch (Exception $error){
-            Log::error($error);
-
-            $order->log()->create([
-                'type' => 'error',
-                'code' => 'INVOICE_ERROR',
-                'log' => $error->getMessage()
-            ]);
-
-            //Debug
-            if ( PaymentService::isDebug() ) {
-                throw $error;
-            }
         }
     }
 
@@ -164,7 +123,7 @@ class Payment extends AdminModel
                 throw $e;
             }
 
-            $log = $order->logException($e, function($log) use ($e) {
+            $log = $this->getOrder()->logException($e, function($log) use ($e) {
                 $log->code = $log->code ?: 'PAYMENT_ERROR';
             });
 

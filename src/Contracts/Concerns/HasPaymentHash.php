@@ -16,4 +16,9 @@ trait HasPaymentHash
 
         return hash('sha256', sha1(md5(sha1(md5($key)))));
     }
+
+    public function getHash(string $type = 'default') : string
+    {
+        return $this->getPaymentHash($type);
+    }
 }

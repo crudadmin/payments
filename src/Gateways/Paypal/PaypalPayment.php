@@ -75,7 +75,7 @@ class PaypalPayment extends PaymentGateway
      *
      * @return  array
      */
-    public function getNotificationResponse($paymentId)
+    public function getNotificationResponse()
     {
         return [
             'paid' => $this->getOrder()->paid_at ? true : false,

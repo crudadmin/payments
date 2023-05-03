@@ -19,7 +19,7 @@ class PaymentController extends Controller
             abort(401);
         }
 
-        return $payment->isPaymentPaid($type);
+        return $payment->paymentStatusResponse($type);
     }
 
     public function postPayment($model, $orderId, $hash)
@@ -64,9 +64,7 @@ class PaymentController extends Controller
 
             $event = $webhook->getWebhookEvent();
 
-            return $webhook->onWebhookEvent(
-                $event
-            );
+            return $webhook->onWebhookEvent($event);
         }
     }
 }

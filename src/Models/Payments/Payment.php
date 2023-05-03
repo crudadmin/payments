@@ -89,6 +89,15 @@ class Payment extends AdminModel
         return $this->hasOne($relatedModel::class, 'id', 'row_id');
     }
 
+    public function setPaymentData($data)
+    {
+        if ( is_array($data) && count($data) ) {
+            $this->data = array_merge($this->data ?: [], $data);
+        }
+
+        return $this;
+    }
+
     public function onPaymentPaid($processType = null)
     {
         //If payment is paid already. Do nothing
@@ -100,9 +109,9 @@ class Payment extends AdminModel
         $this->paid_at = Carbon::now();
 
         if ( $processType ) {
-            $this->data = ($this->data ?: []) + [
+            $this->setPaymentData([
                 'paid_by' => $processType,
-            ];
+            ]);
         }
 
         $this->save();
@@ -132,32 +141,23 @@ class Payment extends AdminModel
         return $provider;
     }
 
-    public function isPaymentPaid($type = 'notification')
+    public function paymentStatusResponse($type = 'notification')
     {
         $provider = $this->getPaymentProvider();
-
-        $redirect = null;
 
         try {
             $provider->isPaid(
                 $provider->getPaymentId()
             );
 
-            //Custom paid callback. We also can overide default redirect
             if ( method_exists($provider, 'onPaid') ){
-                $redirect = $provider->onPaid($this);
-            }
-
-            //Default paid callback
-            else {
-                //Update payment status
-                $this->onPaymentPaid($type);
+                $provider->onPaid($this);
+            } else {
+                $this->onPaymentPaida($type);
             }
 
             //If redirect is not set yet
-            if ( ! $redirect ){
-                $redirect = redirect(PaymentService::onPaymentSuccess());
-            }
+            $response = $provider->getSuccessResponse();
         } catch (Exception $e){
             if ( PaymentService::isDebug() ){
                 throw $e;
@@ -167,16 +167,26 @@ class Payment extends AdminModel
                 $log->code = $log->code ?: 'PAYMENT_ERROR';
             });
 
-            $redirect = redirect(PaymentService::onPaymentError($log->code));
+            $response = $provider->getErrorResponse($log);
         }
 
         //Does not return redirect response on notification
-        if ( in_array($type, ['notification']) ){
-            return $provider->getNotificationResponse(
-                $provider->getPaymentId()
-            );
+        if ( in_array($type, ['notification', 'webhook']) ){
+            $response = $provider->getNotificationResponse();
         }
 
-        return $redirect;
+        return $response ?? null;
+    }
+
+    public function onWebhookEvent($webhookName)
+    {
+        //Save triggered webhooks
+        $this->setPaymentData([
+            'webhooks' => array_unique(array_merge($this->data['webhooks'] ?? [], [
+                Carbon::now()->format('Y-m-d H:i:s') => $webhookName
+            ])),
+        ])->save();
+
+        return $this->paymentStatusResponse('webhook');
     }
 }

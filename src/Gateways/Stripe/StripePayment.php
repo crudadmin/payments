@@ -80,11 +80,7 @@ class StripePayment extends PaymentGateway
 
             $this->setPaymentId(
                 $session->id,
-                [
-                    'data' => [
-                        'intent_id' => $session->payment_intent,
-                    ]
-                ]
+                ['intent_id' => $session->payment_intent]
             );
 
             return $session->url;

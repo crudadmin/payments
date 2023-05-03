@@ -4,6 +4,7 @@ namespace AdminPayments\Gateways;
 
 use AdminPayments\Contracts\ConfigProvider;
 use AdminPayments\Contracts\Exceptions\PaymentResponseException;
+use AdminPayments\Models\Payments\PaymentsLog;
 use PaymentService;
 
 class PaymentGateway extends ConfigProvider
@@ -43,18 +44,19 @@ class PaymentGateway extends ConfigProvider
      */
     public function setPaymentId($paymentId, $data = [])
     {
-        $this->getPayment()->update(array_merge([
-            'payment_id' => $paymentId,
-        ], $data));
+        $payment = $this->getPayment();
+        $payment->setPaymentData($data);
+        $payment->payment_id = $paymentId;
+        $payment->save();
+
+        return $this;
     }
 
     public function setPaymentData($data = [])
     {
-        $payment = $this->getPayment();
+        $this->getPayment()->setPaymentData($data)->save();
 
-        $payment->update([
-            'data' => array_merge($payment->data ?: [], $data)
-        ]);
+        return $this;
     }
 
     /**
@@ -115,7 +117,17 @@ class PaymentGateway extends ConfigProvider
         ]);
     }
 
-    public function getNotificationResponse($paymentId)
+    public function getSuccessResponse()
+    {
+        return redirect(PaymentService::onPaymentSuccess());
+    }
+
+    public function getErrorResponse(PaymentsLog $log)
+    {
+        return redirect(PaymentService::onPaymentError($log->code));
+    }
+
+    public function getNotificationResponse()
     {
         return ['success' => true];
     }

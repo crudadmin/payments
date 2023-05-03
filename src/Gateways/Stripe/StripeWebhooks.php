@@ -37,7 +37,7 @@ class StripeWebhooks extends PaymentWebhook
             throw new Exception($e);
         }
 
-        if ($endpointSecret) {
+        if ($endpointSecret && config('stripe.webhook_testing', false) == false ) {
             // Only verify the event if there is an endpoint secret defined
             // Otherwise use the basic decoded event
             $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'];
@@ -68,9 +68,9 @@ class StripeWebhooks extends PaymentWebhook
         if ( in_array($event->type, $listenForWebhooks) ) {
             $session = $event->data->object;
 
-            $payment = $this->getPayment($session->id);
-
-            $payment->isPaymentPaid('webhook');
+            if ( $payment = $this->getPayment($session->id) ){
+                return $payment->onWebhookEvent($event->type);
+            }
         }
     }
 }

@@ -62,7 +62,9 @@ class PaymentController extends Controller
         if ( array_key_exists($type, $hooks) ){
             $webhook = new $hooks[$type];
 
-            $event = $webhook->getWebhookEvent();
+            if ( !($event = $webhook->getWebhookEvent()) ){
+                return ['error' => true, 'code' => 'empty_event'];
+            }
 
             return $webhook
                         ->logEvent($event)

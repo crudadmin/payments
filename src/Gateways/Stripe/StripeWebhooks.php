@@ -72,6 +72,8 @@ class StripeWebhooks extends PaymentWebhook
         if ( $payment && $payment->getPaymentProvider()?->canPassWebhook($event->type) ){
             return $payment->onWebhookEvent($event->type);
         }
+
+        $this->event($event->type, $event, $payment);
     }
 }
 

@@ -31,7 +31,7 @@ trait HasPayments
 
     public function getNumberAttribute()
     {
-        return $this->getKey();
+        return str_pad($this->getKey(), 5, '0', STR_PAD_LEFT);
     }
 
     public function isPaid() : bool

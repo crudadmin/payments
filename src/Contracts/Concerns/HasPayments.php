@@ -7,6 +7,7 @@ use AdminPayments\Contracts\Concerns\HasPaymentHash;
 use AdminPayments\Contracts\Concerns\HasPaymentLog;
 use AdminPayments\Mail\PaymentPaid;
 use AdminPayments\Models\Invoice\Invoice;
+use AdminPayments\Models\Payments\Payment;
 use AdminPayments\Models\Payments\PaymentsLog;
 use Exception;
 use Illuminate\Support\Facades\Mail;
@@ -171,6 +172,17 @@ trait HasPayments
     public function getPaymentDescription()
     {
 
+    }
+
+    /**
+     * On paid order check
+     *
+     * @param  Payment  $payment
+     * @param  string|optional  $webhookName
+     */
+    public function setPaymentCheck(Payment $payment, $webhookName)
+    {
+        //..
     }
 
     public function payments()

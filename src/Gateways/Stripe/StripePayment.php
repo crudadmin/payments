@@ -14,6 +14,15 @@ class StripePayment extends PaymentGateway
 {
     public $client;
 
+    /**
+     * Whitelisted webhooks for this provider
+     *
+     * @var  array
+     */
+    protected $webhooks = [
+        'checkout.session.completed'
+    ];
+
     public function __construct($options = null)
     {
         parent::__construct(

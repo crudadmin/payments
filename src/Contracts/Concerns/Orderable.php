@@ -52,7 +52,15 @@ interface Orderable
     /**
      * On successfull payment
      */
-    public function onPaymentPaid(Payment $payment);
+    public function setPaymentPaid(Payment $payment);
+
+    /**
+     * On paid order check
+     *
+     * @param  Payment  $payment
+     * @param  string|optional  $webhookName
+     */
+    public function setPaymentCheck(Payment $payment, $webhookName);
 
     /**
      * Should we generate invoice for a paid order?

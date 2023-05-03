@@ -98,10 +98,19 @@ class Payment extends AdminModel
         return $this;
     }
 
-    public function onPaymentPaid($processType = null)
+    public function getIsPaidAttribute()
     {
-        //If payment is paid already. Do nothing
-        if ( $this->paid_at || $this->status == 'paid' ) {
+        return $this->paid_at || $this->status == 'paid';
+    }
+
+    /**
+     * When order is paid for the first time
+     *
+     * @param  string  $processType
+     */
+    public function setPaymentPaid($processType = null)
+    {
+        if ( $this->isPaid ) {
             return;
         }
 
@@ -120,7 +129,7 @@ class Payment extends AdminModel
 
         event(new PaymentPaid($this, $order));
 
-        $order->onPaymentPaid($this);
+        $order->setPaymentPaid($this);
 
         //Send notification email
         if ( $order->hasPaidNotification() ) {
@@ -129,6 +138,18 @@ class Payment extends AdminModel
 
             $order->sendPaymentEmail($invoice);
         }
+    }
+
+    /**
+     * When payment is paid already
+     * but we received status update
+     *
+     * @param  string  $paymentId
+     * @param  string|nullable  $webhookName
+     */
+    public function setPaymentCheck($webhookName = null)
+    {
+        $this->order->setPaymentCheck($this, $webhookName);
     }
 
     public function getPaymentProvider()
@@ -141,19 +162,26 @@ class Payment extends AdminModel
         return $provider;
     }
 
-    public function paymentStatusResponse($type = 'notification')
+    public function paymentStatusResponse($type = 'notification', $webhookName = null)
     {
         $provider = $this->getPaymentProvider();
 
         try {
-            $provider->isPaid(
-                $provider->getPaymentId()
-            );
+            //Check paid status
+            if ( $this->isPaid == false ) {
+                $provider->isPaid(
+                    $provider->getPaymentId()
+                );
 
-            if ( method_exists($provider, 'onPaid') ){
-                $provider->onPaid($this);
-            } else {
-                $this->onPaymentPaid($type);
+                $provider->onPaid($type);
+            }
+
+            //Check payment existance status
+            else {
+                $provider->onCheck(
+                    $provider->getPaymentId(),
+                    $webhookName,
+                );
             }
 
             //If redirect is not set yet
@@ -187,6 +215,6 @@ class Payment extends AdminModel
             ])),
         ])->save();
 
-        return $this->paymentStatusResponse('webhook');
+        return $this->paymentStatusResponse('webhook', $webhookName);
     }
 }

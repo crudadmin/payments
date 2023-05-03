@@ -13,6 +13,8 @@ class PaymentGateway extends ConfigProvider
 
     private $response;
 
+    protected $webhooks = [];
+
     public function getPayment()
     {
         return $this->payment;
@@ -172,13 +174,27 @@ class PaymentGateway extends ConfigProvider
      */
     public function canPassWebhook($name)
     {
-        return true;
+        return count($this->webhooks) == 0 || in_array($name, $this->webhooks);
     }
 
     /**
      * On payment paid successfully
      */
-    // public function onPaid(){}
+    public function onPaid($type)
+    {
+        $this->getPayment()->setPaymentPaid($type);
+    }
+
+    /**
+     * On paid payment validation check
+     *
+     * @param  string  $paymentId
+     * @param  string|optional  $webhookName
+     */
+    public function onCheck($paymentId, $webhookName)
+    {
+        $this->getPayment()->setPaymentCheck($webhookName);
+    }
 }
 
 ?>

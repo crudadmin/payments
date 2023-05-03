@@ -153,7 +153,7 @@ class Payment extends AdminModel
             if ( method_exists($provider, 'onPaid') ){
                 $provider->onPaid($this);
             } else {
-                $this->onPaymentPaida($type);
+                $this->onPaymentPaid($type);
             }
 
             //If redirect is not set yet

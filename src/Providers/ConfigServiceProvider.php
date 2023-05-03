@@ -57,6 +57,12 @@ class ConfigServiceProvider extends AdminHelperServiceProvider
             'path' => storage_path('logs/payments.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ]);
+
+        $this->app['config']->set('logging.channels.webhooks', [
+            'driver' => 'single',
+            'path' => storage_path('logs/webhooks.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ]);
     }
 
     private function enablePaymentHooksCors()

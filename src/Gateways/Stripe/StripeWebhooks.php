@@ -20,7 +20,7 @@ class StripeWebhooks extends PaymentWebhook
     {
         $this->setApiKey();
 
-        $endpointSecret = config('stripe.webhook_secret');
+        $endpointSecret = config('stripe.webhooks.secret')||config('stripe.webhook_secret');
 
         $payload = @file_get_contents('php://input');
         $event = null;
@@ -37,7 +37,7 @@ class StripeWebhooks extends PaymentWebhook
             throw new Exception($e);
         }
 
-        if ($endpointSecret && config('stripe.webhook_testing', false) == false ) {
+        if ($endpointSecret && config('stripe.webhooks.testing', false) == false ) {
             // Only verify the event if there is an endpoint secret defined
             // Otherwise use the basic decoded event
             $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'];
@@ -56,21 +56,21 @@ class StripeWebhooks extends PaymentWebhook
 
     public function onWebhookEvent($event)
     {
-        if ( config('logging.channels.stripe_webhooks') ) {
-            Log::channel('stripe_webhooks')->info($event);
-        }
-
-        $listenForWebhooks = config('stripe.webhooks_enabled', [
+        $whitelistedEvents = config('stripe.webhooks.listen', [
             'checkout.session.completed',
-            'customer.subscription.created',
         ]);
 
-        if ( in_array($event->type, $listenForWebhooks) ) {
-            $session = $event->data->object;
+        //Check enabled webhooks
+        if ( !in_array($event->type, $whitelistedEvents) ) {
+            return;
+        }
 
-            if ( $payment = $this->getPayment($session->id) ){
-                return $payment->onWebhookEvent($event->type);
-            }
+        $object = $event->data->object;
+
+        $payment = $this->getPayment($object->id);
+
+        if ( $payment && $payment->getPaymentProvider()?->canPassWebhook($event->type) ){
+            return $payment->onWebhookEvent($event->type);
         }
     }
 }

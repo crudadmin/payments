@@ -41,18 +41,6 @@ class PaypalWebhooks extends PaymentWebhook
             return;
         }
 
-        if ( !($order = $payment->order) ){
-            throw new Exception('Order could not be found');
-        }
-
-        if ( isset($body['event_type']) ){
-            $order->logReport('info', $body['event_type'], $body['event_type'].' - '.($body['summary'] ?? ''), ($body['resource'] ?? null));
-        }
-
-        if ( config('logging.channels.paypal_webhooks') ) {
-            Log::channel('paypal_webhooks')->info($body);
-        }
-
         //When order is approved, we need initialize capture of order.
         if ( isset($body['event_type']) && in_array($body['event_type'], ['CHECKOUT.ORDER.APPROVED']) ) {
             return $payment->onWebhookEvent($body['event_type']);

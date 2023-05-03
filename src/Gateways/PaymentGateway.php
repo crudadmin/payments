@@ -164,6 +164,18 @@ class PaymentGateway extends ConfigProvider
     }
 
     /**
+     * Determine whatever given webhoon can be passed into provider events
+     *
+     * @param  string  $name
+     *
+     * @return  bool
+     */
+    public function canPassWebhook($name)
+    {
+        return true;
+    }
+
+    /**
      * On payment paid successfully
      */
     // public function onPaid(){}

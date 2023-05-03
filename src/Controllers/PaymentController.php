@@ -64,7 +64,9 @@ class PaymentController extends Controller
 
             $event = $webhook->getWebhookEvent();
 
-            return $webhook->onWebhookEvent($event);
+            return $webhook
+                        ->logEvent($event)
+                        ->onWebhookEvent($event);
         }
     }
 }

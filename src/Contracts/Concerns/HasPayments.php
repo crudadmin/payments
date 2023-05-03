@@ -185,6 +185,11 @@ trait HasPayments
         //..
     }
 
+    public function getAfterPaymentRoute()
+    {
+        return '/';
+    }
+
     public function payments()
     {
         return $this

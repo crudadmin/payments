@@ -85,6 +85,13 @@ class PaymentService
         if ( is_callable($callback = $this->onPaymentSuccessCallback) ) {
             return $callback($order);
         }
+
+        $path = $order->getAfterPaymentRoute();
+        $path .= (strpos($path, '?') ? '&' : '?').'id='.$order->getKey();
+        $path .= '&hash='.$order->getHash();
+        $path .= '&paymentSuccess=1';
+
+        return env('APP_NUXT_URL').$path;
     }
 
     /**
@@ -98,11 +105,19 @@ class PaymentService
     {
         $order = $this->getOrder();
 
-        if ( is_callable($callback = $this->onPaymentErrorCallback) ) {
-            $message = $this->getOrderMessage($code);
+        $errorMessage = $this->getOrderMessage($code);
 
-            return $callback($order, $code, $message);
+        if ( is_callable($callback = $this->onPaymentErrorCallback) ) {
+            return $callback($order, $code, $errorMessage);
         }
+
+        $path = $order->getAfterPaymentRoute();
+        $path .= (strpos($path, '?') ? '&' : '?').'id='.$order->getKey();
+        $path .= '&hash='.$order->getHash();
+        $path .= '&paymentError='.$code;
+        $path .= '&paymentMessage='.$errorMessage;
+
+        return env('APP_NUXT_URL').$path;
     }
 
     /**

@@ -125,18 +125,18 @@ class Payment extends AdminModel
 
         $this->save();
 
-        $order = $this->order;
+        if ( $order = $this->order ) {
+            event(new PaymentPaid($this, $order));
 
-        event(new PaymentPaid($this, $order));
+            $order->setPaymentPaid($this);
 
-        $order->setPaymentPaid($this);
+            //Send notification email
+            if ( $order->hasPaidNotification() ) {
+                //Generate invoice
+                $invoice = $order->makeInvoice('invoice');
 
-        //Send notification email
-        if ( $order->hasPaidNotification() ) {
-            //Generate invoice
-            $invoice = $order->makeInvoice('invoice');
-
-            $order->sendPaymentEmail($invoice);
+                $order->sendPaymentEmail($invoice);
+            }
         }
     }
 
@@ -149,7 +149,9 @@ class Payment extends AdminModel
      */
     public function setPaymentCheck($webhookName = null)
     {
-        $this->order->setPaymentCheck($this, $webhookName);
+        if ( $this->order ){
+            $this->order->setPaymentCheck($this, $webhookName);
+        }
     }
 
     public function getPaymentProvider()

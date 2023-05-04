@@ -131,7 +131,7 @@ class PaymentService
     {
         $order = $this->getOrder();
 
-        if ( !($paymentMethodId = $paymentMethodId ?: $order->payment_method_id) ){
+        if ( !($paymentMethodId = $paymentMethodId ?: $order->getPaymentMethodId()) ){
             return;
         }
 

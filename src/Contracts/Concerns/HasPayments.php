@@ -193,12 +193,12 @@ trait HasPayments
     public function payments()
     {
         return $this
-            ->hasMany(
-                Admin::getModel('Payment')::class,
-                'row_id',
-                'id',
-            )
-            ->where('payments.table', $this->getTable());
+                ->hasMany(
+                    Admin::getModel('Payment')::class,
+                    'row_id',
+                    'id',
+                )
+                ->where('payments.table', $this->getTable());
     }
 }
 

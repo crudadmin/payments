@@ -27,6 +27,8 @@ class PaymentService
 
     protected $paymentTypesConfigKey = 'adminpayments.payment_methods.providers';
 
+    protected $onPaymentUrl = '';
+
     protected $onPaymentSuccessCallback = null;
 
     protected $onPaymentErrorCallback = null;
@@ -53,6 +55,13 @@ class PaymentService
         return $this->order;
     }
 
+    public function setPaymentUrl($url)
+    {
+        $this->onPaymentUrl = $url;
+
+        return $this;
+    }
+
     /**
      * Set successfull payment response callback
      *
@@ -61,6 +70,8 @@ class PaymentService
     public function setOnPaymentSuccess(callable $callback)
     {
         $this->onPaymentSuccessCallback = $callback;
+
+        return $this;
     }
 
     /**
@@ -71,6 +82,8 @@ class PaymentService
     public function setOnPaymentError(callable $callback)
     {
         $this->onPaymentErrorCallback = $callback;
+
+        return $this;
     }
 
     /**
@@ -91,7 +104,7 @@ class PaymentService
         $path .= '&hash='.$order->getHash();
         $path .= '&paymentSuccess=1';
 
-        return env('APP_NUXT_URL').$path;
+        return $this->url($path);
     }
 
     /**
@@ -117,7 +130,21 @@ class PaymentService
         $path .= '&paymentError='.$code;
         $path .= '&paymentMessage='.$errorMessage;
 
-        return env('APP_NUXT_URL').$path;
+        return $this->url($path);
+    }
+
+    /**
+     * Returns payment url
+     *
+     * @param  string  $path
+     *
+     * @return  string
+     */
+    public function url($path)
+    {
+        $url = $this->onPaymentUrl ?: url('');
+
+        return $url.$path;
     }
 
     /**

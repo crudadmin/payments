@@ -37,7 +37,7 @@ class PaymentWebhook
                 return;
             }
 
-            return $payment;
+            return $payment->setLocale();
         });
     }
 }

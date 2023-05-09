@@ -142,7 +142,13 @@ class PaymentService
      */
     public function url($path)
     {
-        $url = $this->onPaymentUrl ?: url('');
+        $paymentUrl = $this->onPaymentUrl;
+
+        if ( is_callable($paymentUrl) ){
+            return $paymentUrl($path);
+        }
+
+        $url = $paymentUrl ?: url('');
 
         return $url.$path;
     }

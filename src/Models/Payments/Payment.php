@@ -8,6 +8,7 @@ use AdminPayments\Events\PaymentPaid;
 use Admin\Eloquent\AdminModel;
 use Admin\Fields\Group;
 use Carbon\Carbon;
+use Localization;
 use Exception;
 use Admin;
 use Log;
@@ -57,6 +58,9 @@ class Payment extends AdminModel
                 'status' => 'name:Status|max:10|default:waiting|index|required',
                 'paid_at' => 'name:Zaplatené dňa|type:datetime|hidden',
                 'data' => 'name:Data|type:json',
+                Group::fields([
+                    'language' => 'name:Jazyk|belongsTo:languages,name',
+                ])->if(Admin::isEnabledLocalization()),
             ],
         );
     }
@@ -75,6 +79,21 @@ class Payment extends AdminModel
                     'row_id' => DB::raw('order_id'),
                 ]);
         }
+    }
+
+    public function setLocale()
+    {
+        if ( $this->language_id ){
+            $language = Localization::get();
+
+            if ( $this->language_id != $language->getKey() ){
+                $paymentLocale = Localization::all()->firstWhere('id', $this->language_id);
+
+                Localization::setLocale($paymentLocale->slug);
+            }
+        }
+
+        return $this;
     }
 
     /**

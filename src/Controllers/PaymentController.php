@@ -12,7 +12,7 @@ class PaymentController extends Controller
 {
     public function paymentStatus($paymentId, $type, $hash)
     {
-        $payment = Admin::getModel('Payment')->findOrFail($paymentId);
+        $payment = Admin::getModel('Payment')->findOrFail($paymentId)->setLocale();
 
         //Check if is payment hash correct hash and ids
         if ( $hash != $payment->getPaymentHash($type) ) {
@@ -28,7 +28,7 @@ class PaymentController extends Controller
             abort(404);
         }
 
-        $order = $order->findOrFail($orderId);
+        $order = $order->findOrFail($orderId)->setLocale();
 
         $type = 'postpayment';
 

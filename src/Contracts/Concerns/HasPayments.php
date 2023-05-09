@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Support\Facades\Mail;
 use Log;
 use PaymentService;
+use Localization;
 
 trait HasPayments
 {
@@ -116,13 +117,19 @@ trait HasPayments
      */
     public function makePayment($paymentMethodId = null)
     {
-        return $this->payments()->create([
+        $data = [
             'table' => $this->getTable(),
             'row_id' => $this->getKey(),
             'price' => $this->price_vat ?: 0,
             'payment_method_id' => $paymentMethodId ?: $this->getPaymentMethodId(),
             'uniqid' => uniqid().str_random(10),
-        ]);
+        ];
+
+        if ( Admin::isEnabledLocalization() ){
+            $data['language_id'] = Localization::get()->getKey();
+        }
+
+        return $this->payments()->create($data);
     }
 
     public function sendPaymentEmail($invoice = null)

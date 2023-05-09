@@ -20,7 +20,7 @@ class StripeWebhooks extends PaymentWebhook
     {
         $this->setApiKey();
 
-        $endpointSecret = config('stripe.webhooks.secret')||config('stripe.webhook_secret');
+        $endpointSecret = config('stripe.webhooks.secret') ?: config('stripe.webhook_secret');
 
         $payload = @file_get_contents('php://input');
         $event = null;

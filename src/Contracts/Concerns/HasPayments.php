@@ -44,7 +44,7 @@ trait HasPayments
     {
         $paymentMethodId = $paymentMethodId ?: $this->getPaymentMethodId();
 
-        if ( !($paymentClass = $this->getPaymentProvider($paymentMethodId)->initialize()) ){
+        if ( !($paymentClass = $this->getPaymentProvider($paymentMethodId)?->initialize()) ){
             return [];
         }
 
@@ -62,7 +62,7 @@ trait HasPayments
     {
         $paymentMethodId = $paymentMethodId ?: $this->getPaymentMethodId();
 
-        if ( !($paymentClass = $this->getPaymentProvider($paymentMethodId)->initialize()) ){
+        if ( !($paymentClass = $this->getPaymentProvider($paymentMethodId)?->initialize()) ){
             return [];
         }
 

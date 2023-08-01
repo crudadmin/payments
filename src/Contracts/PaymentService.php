@@ -189,7 +189,7 @@ class PaymentService
 
     public function getOrderMessage($key)
     {
-        return config('adminpayments.order.codes.'.$key);
+        return config('admineshop.order.codes.'.$key) ?: config('adminpayments.error_codes.'.$key);
     }
 }
 

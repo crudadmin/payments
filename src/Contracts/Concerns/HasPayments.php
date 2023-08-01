@@ -6,14 +6,14 @@ use Admin;
 use AdminPayments\Contracts\Concerns\HasPaymentHash;
 use AdminPayments\Contracts\Concerns\HasPaymentLog;
 use AdminPayments\Mail\PaymentPaid;
-use AdminPayments\Models\Invoice\Invoice;
 use AdminPayments\Models\Payments\Payment;
 use AdminPayments\Models\Payments\PaymentsLog;
 use Exception;
+use Gogol\Invoices\Model\Invoice;
 use Illuminate\Support\Facades\Mail;
+use Localization;
 use Log;
 use PaymentService;
-use Localization;
 
 trait HasPayments
 {

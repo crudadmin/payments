@@ -1,2 +1,1 @@
-@component('mail::footer')
-@endcomponent
+@includeIf('admineshop::mail.order.slots.footer')

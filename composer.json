@@ -10,8 +10,8 @@
     ],
     "require": {
         "php": ">=8.0.0",
-        "laravel/framework": "^6|^7|^8|^9",
-        "crudadmin/crudadmin": "^4.0|dev-master",
+        "laravel/framework": "^9|^10",
+        "crudadmin/crudadmin": "^4.0|^5.0|dev-master",
         "marekgogol/invoices": "^4.0|dev-master",
         "gopay/payments-sdk-php": "^1.4"
     },

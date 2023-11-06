@@ -105,7 +105,7 @@ class PaymentGateway extends ConfigProvider
             $payment->getKey(),
             $type,
             $payment->getPaymentHash($type),
-        ]);
+        ]).'?origin='.urldecode(request()->headers->get('origin') ?: '');
     }
 
     public function getPostPaymentUrl($paymentResponse)

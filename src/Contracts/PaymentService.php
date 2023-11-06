@@ -144,11 +144,13 @@ class PaymentService
     {
         $paymentUrl = $this->onPaymentUrl;
 
+        $origin = request('origin');
+
         if ( is_callable($paymentUrl) ){
-            return $paymentUrl($path);
+            return $paymentUrl($path, $origin);
         }
 
-        $url = $paymentUrl ?: url('');
+        $url = $paymentUrl ?: $origin ?: url('');
 
         return $url.$path;
     }

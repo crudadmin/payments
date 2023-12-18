@@ -6,6 +6,7 @@ use AdminPayments\Contracts\ConfigProvider;
 use AdminPayments\Contracts\Exceptions\PaymentResponseException;
 use AdminPayments\Models\Payments\PaymentsLog;
 use PaymentService;
+use Exception;
 
 class PaymentGateway extends ConfigProvider
 {

@@ -70,7 +70,7 @@ trait HasPaypalSupport
 
     public function toPhoneNumberFormat($phone)
     {
-        $phone = PhoneNumber::make($phone, $this->getOrder()->country->code);
+        $phone = new PhoneNumber($phone, $this->getOrder()->country->code);
         $phone = $phone->formatNational();
         $phone = str_replace(' ', '', $phone);
 

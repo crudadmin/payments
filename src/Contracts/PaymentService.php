@@ -118,7 +118,7 @@ class PaymentService
     {
         $order = $this->getOrder();
 
-        $errorMessage = $this->getOrderMessage($code);
+        $errorMessage = $this->getPaymentMessage($code);
 
         if ( is_callable($callback = $this->onPaymentErrorCallback) ) {
             return $callback($order, $code, $errorMessage);
@@ -194,9 +194,21 @@ class PaymentService
         return app()->environment('local') && env('APP_DEBUG') == true && env('APP_STORE_DEBUG') == true;
     }
 
-    public function getOrderMessage($key)
+    public function getPaymentMessage($key)
     {
-        return config('admineshop.order.codes.'.$key) ?: config('adminpayments.error_codes.'.$key);
+        $codes = array_merge(
+            [
+                'PAYMENT_INITIALIZATION_ERROR' => _('Platbu nebolo možné inicializovať.'),
+                'PAYMENT_ERROR' => _('Nastala nečakaná chyba pri spracovani platby. Skúste platbu vykonať neskôr, alebo nás prosím kontaktujte.'),
+                'PAYMENT_UNVERIFIED' => _('Vaša objednávka bola úspešne zaznamenaná, no potvrdenie Vašej platby sme zatiaľ neobdržali. V prípade ak ste platbu nevykonali, môžete ju uhradiť opätovne z emailu, alebo nás kontaktujte pre ďalšie informácie.'),
+                'PAYMENT_PAID' => _('Vaša objednávka už bola úspešne zaplatená.'),
+                'INVOICE_ERROR' => _('Chyba vygenerovania dokladu.'),
+            ],
+            config('adminpayments.error_codes', []),
+            config('admineshop.order.codes', []),
+        );
+
+        return $codes[$key] ?? null;
     }
 }
 

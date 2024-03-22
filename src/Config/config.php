@@ -27,4 +27,14 @@ return [
     'notifications' => [
         'paid' => true,
     ],
+
+    /**
+     * You can override payment error messages according to code
+     * Codes: PAYMENT_INITIALIZATION_ERROR, PAYMENT_ERROR, PAYMENT_UNVERIFIED, PAYMENT_PAID, INVOICE_ERROR
+     */
+    'error_codes' => [
+        // 'PAYMENT_ERROR' => _('...'),
+        // 'PAYMENT_PAID' => _('...'),
+        // ..
+    ],
 ];

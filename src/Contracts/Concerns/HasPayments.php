@@ -29,7 +29,7 @@ trait HasPayments
 
     public function hasPaidNotification()
     {
-        return config('adminpayments.notificaions.paid', true);
+        return config('adminpayments.notifications.paid', true);
     }
 
     public function getNumberAttribute()

@@ -142,6 +142,11 @@ class PaymentService
      */
     public function url($path)
     {
+        //If full url is made already
+        if ( starts_with($path, 'http://') || starts_with($path, 'https://') ){
+            return $path;
+        }
+
         $paymentUrl = $this->onPaymentUrl;
 
         $origin = request('origin');

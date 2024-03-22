@@ -67,13 +67,13 @@ class GopayPayment extends PaymentGateway
 
     public function getPaymentLimits()
     {
-        return [
+        return $this->getOption('payment_limits', [
             'PAYMENT_CARD' => env('GOPAY_LIMIT_PAYMENT_CARD', 2000),
             'BANK_ACCOUNT' => env('GOPAY_LIMIT_BANK_ACCOUNT', 4000),
             'PAYPAL' => env('GOPAY_LIMIT_PAYPAL', 1000),
             'BITCOIN' => env('GOPAY_LIMIT_BITCOIN', 1000),
             'PRSMS' => env('GOPAY_LIMIT_PRSMS', 20),
-        ];
+        ]);
     }
 
     public function isPaymentInLimit($key)
@@ -93,36 +93,13 @@ class GopayPayment extends PaymentGateway
 
     private function getItems()
     {
-        $items = [];
-
-        $order = $this->getOrder();
-
-        foreach ($order->items as $item)
-        {
-            $items[] = [
-                'name' => $item->getProductName(),
-                'count' => $item->quantity,
-                'amount' => round($item->price_vat * $item->quantity * 100),
-            ];
-        }
-
-        if ( $order->delivery ) {
-            $items[] = [
-                'name' => $order->delivery->name,
+        return [
+            [
+                'name' => $this->getPaymentTitle(),
                 'count' => 1,
-                'amount' => round($order->deliveryPriceWithVat * 100),
-            ];
-        }
-
-        if ( $order->payment_method ) {
-            $items[] = [
-                'name' => $order->payment_method->name,
-                'count' => 1,
-                'amount' => round($order->paymentMethodPriceWithVat * 100),
-            ];
-        }
-
-        return $items;
+                'amount' => round($this->getPayment()->price * 100),
+            ],
+        ];
     }
 
     private function getPayer()
@@ -166,7 +143,7 @@ class GopayPayment extends PaymentGateway
             'payer' => $payer,
             'amount' => round($payment->price * 100),
             'currency' => 'EUR',
-            'order_number' => $order->number,
+            'order_number' => $this->getPaymentNumber(),
             'order_description' => sprintf(_('Platba %s'), env('APP_NAME')),
             'items' => $this->getItems(),
             'callback' => [
@@ -183,6 +160,8 @@ class GopayPayment extends PaymentGateway
             return $response->json['gw_url'];
         } else {
             throw new PaymentGateException(
+                $response->json['errors'][0]['message'] ?? null,
+                $response?->statusCode ?? null,
                 json_encode($response->json, JSON_PRETTY_PRINT)
             );
 

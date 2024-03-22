@@ -41,11 +41,6 @@ class PaymentsLog extends AdminModel
 
     public $timestamps = false;
 
-    public function belongsToModel()
-    {
-        return config('adminpayments.models', []);
-    }
-
     /*
      * Automatic form and database generation
      * @name - field name
@@ -56,6 +51,8 @@ class PaymentsLog extends AdminModel
     public function fields()
     {
         return [
+            'table' => 'name:Model|max:30|index',
+            'row_id' => 'name:Row id|type:integer|index|required',
             'type' => 'name:Typ hlásenia|type:select|default:info|required',
             'code' => 'name:Kód hlásenia|type:select',
             'message' => 'name:Doplnková správa',

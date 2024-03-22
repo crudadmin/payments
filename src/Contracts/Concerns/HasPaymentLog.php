@@ -11,11 +11,14 @@ trait HasPaymentLog
     {
         $row = $this->log()->getModel();
 
-        $row->order_id = $this->getKey();
-        $row->type = $type;
-        $row->code = $code;
-        $row->message = $this->toLogResponse($message);
-        $row->log = $this->toLogResponse($log);
+        $row->fill([
+            'row_id' => $this->getKey(),
+            'table' => $this->getTable(),
+            'type' => $type,
+            'code' => $code,
+            'message' => substr($this->toLogResponse($message), 0, 255),
+            'log' => $this->toLogResponse($log),
+        ]);
 
         if ( is_callable($callback) ){
             $callback($row);

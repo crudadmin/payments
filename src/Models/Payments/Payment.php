@@ -119,6 +119,11 @@ class Payment extends AdminModel
 
     public function getIsPaidAttribute()
     {
+        //!!! TESTING PAYMENT: UNCOMENT THIS ONLY DURING TESTING SINGLE PAYMENT !!!
+        // if ( app()->environment('local') && app()->hasDebugModeEnabled() ){
+        //     return false;
+        // }
+
         return $this->paid_at || $this->status == 'paid';
     }
 

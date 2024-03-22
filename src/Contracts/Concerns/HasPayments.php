@@ -108,6 +108,22 @@ trait HasPayments
     }
 
     /**
+     * Which number should be paid
+     */
+    public function getTotalToPay()
+    {
+        if ( $this->getField('price_vat') ) {
+            return $this->price_vat ?: 0;
+        }
+
+        if ( $this->getField('price') ) {
+            return $this->price ?: 0;
+        }
+
+        return 0;
+    }
+
+    /**
      * Create order payment
      *
      * @param  AdminModel  $order
@@ -120,7 +136,7 @@ trait HasPayments
         $data = [
             'table' => $this->getTable(),
             'row_id' => $this->getKey(),
-            'price' => $this->price_vat ?: 0,
+            'price' => $this->getTotalToPay(),
             'payment_method_id' => $paymentMethodId ?: $this->getPaymentMethodId(),
             'uniqid' => uniqid().str_random(10),
         ];
@@ -192,6 +208,16 @@ trait HasPayments
         //..
     }
 
+    /**
+     * On payment paid
+     *
+     * @param  Payment  $payment
+     */
+    public function setPaymentPaid(Payment $payment)
+    {
+        //...
+    }
+
     public function getAfterPaymentRoute()
     {
         return '/';
@@ -206,6 +232,16 @@ trait HasPayments
                     'id',
                 )
                 ->where('payments.table', $this->getTable());
+    }
+
+    /**
+     * Returns payment description name
+     *
+     * @return  string
+     */
+    public function getPaymentTitle($number)
+    {
+        return 'Order n. '.$number;
     }
 }
 

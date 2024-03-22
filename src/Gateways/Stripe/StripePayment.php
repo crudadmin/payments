@@ -50,7 +50,7 @@ class StripePayment extends PaymentGateway
                         'currency' => Store::getCurrency()->code,
                         'unit_amount' => round($this->getPayment()->price * 100),
                         'product_data' => array_filter([
-                            'name' => 'Order n. '.$order->number,
+                            'name' => $this->getPaymentTitle(),
                             'description' => $order->getPaymentDescription(),
                         ]),
                     ],

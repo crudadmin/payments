@@ -196,6 +196,28 @@ class PaymentGateway extends ConfigProvider
     {
         $this->getPayment()->setPaymentCheck($webhookName);
     }
+
+    /**
+     * Generate payment number from order, etc.
+     *
+     * @return  string
+     */
+    public function getPaymentNumber()
+    {
+        return $this->getOrder()?->number ?: $this->payment->getKey();
+    }
+
+    /**
+     * Returns payment description
+     *
+     * @return  string
+     */
+    public function getPaymentTitle()
+    {
+        return $this->getOrder()->getPaymentTitle(
+            $this->getPaymentNumber()
+        );
+    }
 }
 
 ?>

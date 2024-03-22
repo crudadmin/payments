@@ -8,6 +8,7 @@ use AdminPayments\Contracts\Concerns\HasPaymentLog;
 use AdminPayments\Mail\PaymentPaid;
 use AdminPayments\Models\Payments\Payment;
 use AdminPayments\Models\Payments\PaymentsLog;
+use Admin\Eloquent\Concerns\HasEntryLocales;
 use Exception;
 use Gogol\Invoices\Model\Invoice;
 use Illuminate\Support\Facades\Mail;
@@ -18,7 +19,8 @@ use PaymentService;
 trait HasPayments
 {
     use HasPaymentHash,
-        HasPaymentLog;
+        HasPaymentLog,
+        HasEntryLocales;
 
     public function hasInvoices()
     {

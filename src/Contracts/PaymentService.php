@@ -99,10 +99,10 @@ class PaymentService
             return $callback($order);
         }
 
-        $path = $order->getAfterPaymentRoute();
-        $path .= (strpos($path, '?') ? '&' : '?').'id='.$order->getKey();
-        $path .= '&hash='.$order->getHash();
-        $path .= '&paymentSuccess=1';
+        $path = $this->addQueryIntoUrl(
+            $order->getAfterPaymentRoute(),
+            'id='.$order->getKey().'&hash='.$order->getHash().'&paymentSuccess=1',
+        );
 
         return $this->url($path);
     }
@@ -124,13 +124,30 @@ class PaymentService
             return $callback($order, $code, $errorMessage);
         }
 
-        $path = $order->getAfterPaymentRoute();
-        $path .= (strpos($path, '?') ? '&' : '?').'id='.$order->getKey();
-        $path .= '&hash='.$order->getHash();
-        $path .= '&paymentError='.$code;
-        $path .= '&paymentMessage='.$errorMessage;
+        $path = $this->addQueryIntoUrl(
+            $order->getAfterPaymentRoute(),
+            'id='.$order->getKey().'&hash='.$order->getHash().'&paymentError='.$code.'&paymentMessage='.$errorMessage,
+        );
 
         return $this->url($path);
+    }
+
+    /**
+     * Build final query with acceptance for additional queries and sub hashtags for vue routes.
+     */
+    private function addQueryIntoUrl($url, $query)
+    {
+        $hashParts = explode('#', $url);
+
+        $host = $hashParts[0];
+
+        //Support for queries which has query already
+        $query = (strpos($host, '?') ? '&' : '?').$query;
+
+        $hash = (isset($hashParts[1]) ? '#'.$hashParts[1] : '');
+
+        //Support for queries with hashes
+        return $host.$query.$hash;
     }
 
     /**
@@ -143,9 +160,7 @@ class PaymentService
     public function url($path)
     {
         //If full url is made already
-        if ( starts_with($path, 'http://') || starts_with($path, 'https://') ){
-            return $path;
-        }
+        $isHttp = starts_with($path, 'http://') || starts_with($path, 'https://');
 
         $paymentUrl = $this->onPaymentUrl;
 
@@ -157,7 +172,7 @@ class PaymentService
 
         $url = $paymentUrl ?: $origin ?: url('');
 
-        return $url.$path;
+        return ($isHttp ? '' : $url).$path;
     }
 
     /**

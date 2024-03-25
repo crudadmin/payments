@@ -5,6 +5,7 @@ namespace AdminPayments\Models\Payments;
 use Admin\Eloquent\AdminModel;
 use Admin\Fields\Group;
 use Admin;
+use DB;
 
 class PaymentsLog extends AdminModel
 {
@@ -71,5 +72,21 @@ class PaymentsLog extends AdminModel
             ],
             'code' => config('adminpayments.order.codes', []),
         ];
+    }
+
+    /*
+     * Add empty rows
+     */
+    public function onMigrateEnd($table, $schema)
+    {
+        if ( $schema->hasColumn($this->getTable(), 'order_id') ) {
+            $this->getConnection()->table($this->getTable())
+                ->whereNull('table')
+                ->whereNotNull('order_id')
+                ->update([
+                    'table' => 'orders',
+                    'row_id' => DB::raw('order_id'),
+                ]);
+        }
     }
 }

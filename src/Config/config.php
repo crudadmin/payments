@@ -37,4 +37,6 @@ return [
         // 'PAYMENT_PAID' => _('...'),
         // ..
     ],
+
+    'testing' => env('PAYMENTS_TESTING', false),
 ];

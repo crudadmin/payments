@@ -206,7 +206,9 @@ class PaymentService
 
     public function isDebug()
     {
-        return app()->environment('local') && env('APP_DEBUG') == true && env('APP_STORE_DEBUG') == true;
+        $isTesting = (env('APP_STORE_DEBUG') == true) || config('adminpayments.testing', false) == true;
+
+        return app()->environment('local') && env('APP_DEBUG') == true && $isTesting;
     }
 
     public function getPaymentMessage($key)

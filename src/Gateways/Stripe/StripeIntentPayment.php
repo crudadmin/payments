@@ -24,7 +24,7 @@ class StripeIntentPayment extends StripePayment
             'metadata' => [
                 'order_number' => $this->getOrder()->number,
             ],
-            'customer' => client() ? client()->stripe_customer_id : null,
+            'customer' => $user = $this->user() ? $user->stripe_customer_id : null,
             'payment_method_types' => $this->getOption('payment_method_types'),
         ]);
     }

@@ -2,11 +2,8 @@
 
 namespace AdminPayments\Gateways\Stripe;
 
-use Admin;
 use AdminPayments\Gateways\PaymentWebhook;
 use Exception;
-use Log;
-use PaymentService;
 use Stripe\Stripe;
 
 class StripeWebhooks extends PaymentWebhook

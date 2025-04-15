@@ -67,7 +67,7 @@ class StripePayment extends PaymentGateway
         ];
 
         //If stripe customer exists, then assign payment under this customer. (Support for saved payment methods)
-        if ( client() && $stripeCustomerId = client()->stripe_customer_id ){
+        if ( ($user = $this->user()) && $stripeCustomerId = $user->stripe_customer_id ){
             $data['customer'] = $stripeCustomerId;
         } else if ( $email = $order->email ) {
             $data['customer_email'] = $email;

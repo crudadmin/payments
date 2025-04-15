@@ -16,6 +16,16 @@ class PaymentGateway extends ConfigProvider
 
     protected $webhooks = [];
 
+    /**
+     * Get currently logged user
+     *
+     * @return void
+     */
+    public function user()
+    {
+        return client();
+    }
+
     public function getPayment()
     {
         return $this->payment;

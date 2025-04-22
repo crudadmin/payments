@@ -3,7 +3,6 @@
 namespace AdminPayments\Models\Payments;
 
 use AdminPayments\Contracts\Concerns\HasPaymentHash;
-use AdminPayments\Contracts\Concerns\Orderable;
 use AdminPayments\Events\PaymentPaid;
 use Admin\Eloquent\AdminModel;
 use Admin\Fields\Group;
@@ -11,7 +10,6 @@ use Carbon\Carbon;
 use Localization;
 use Exception;
 use Admin;
-use Log;
 use PaymentService;
 use DB;
 
@@ -186,7 +184,9 @@ class Payment extends AdminModel
      */
     public function setSubscribed($subscription)
     {
-        $this->order->onSubscribed($subscription, $this);
+        if ( $this->order ){
+            $this->order->setSubscription($subscription, $this);
+        }
     }
 
     public function getPaymentProvider()

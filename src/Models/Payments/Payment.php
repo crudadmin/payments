@@ -178,6 +178,17 @@ class Payment extends AdminModel
         }
     }
 
+    /**
+     * Set payment as subscribed
+     *
+     * @param  mixed $subscription
+     * @return void
+     */
+    public function setSubscribed($subscription)
+    {
+        $this->order->onSubscribed($subscription, $this);
+    }
+
     public function getPaymentProvider()
     {
         $provider = PaymentService::setOrder($this->order)
@@ -193,21 +204,22 @@ class Payment extends AdminModel
         $provider = $this->getPaymentProvider();
 
         try {
+            $id = $provider->getPaymentId();
+
+            if ( $provider->isSubscription() ) {
+                $provider->onSubscription($id);
+            }
+
             //Check paid status
-            if ( $this->isPaid == false ) {
-                $provider->isPaid(
-                    $provider->getPaymentId()
-                );
+            else if ( $this->isPaid == false ) {
+                $provider->isPaid($id);
 
                 $provider->onPaid($type);
             }
 
             //Check payment existance status
             else {
-                $provider->onCheck(
-                    $provider->getPaymentId(),
-                    $webhookName,
-                );
+                $provider->onCheck($id, $webhookName);
             }
 
             //If redirect is not set yet

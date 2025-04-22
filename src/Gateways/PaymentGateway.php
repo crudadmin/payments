@@ -10,10 +10,32 @@ use Exception;
 
 class PaymentGateway extends ConfigProvider
 {
+    /**
+     * Payment mode / payment or subscription
+     *
+     * @var string
+     */
+    protected $mode = 'payment';
+
+    /**
+     * payment
+     *
+     * @var \AdminPayments\Models\Payments\Payment
+     */
     private $payment;
 
+    /**
+     * response
+     *
+     * @var mixed
+     */
     private $response;
 
+    /**
+     * Which webhooks are supported by this provider
+     *
+     * @var array
+     */
     protected $webhooks = [];
 
     /**
@@ -24,6 +46,16 @@ class PaymentGateway extends ConfigProvider
     public function user()
     {
         return client();
+    }
+
+    /**
+     * Check if payment is subscription
+     *
+     * @return void
+     */
+    public function isSubscription()
+    {
+        return $this->mode === 'subscription';
     }
 
     public function getPayment()
@@ -205,6 +237,18 @@ class PaymentGateway extends ConfigProvider
     public function onCheck($paymentId, $webhookName)
     {
         $this->getPayment()->setPaymentCheck($webhookName);
+    }
+
+    /**
+     * On subscription payment
+     *
+     * @param  string  $paymentId
+     */
+    public function onSubscription($subscriptionId)
+    {
+        $subscription = $this->getSubscription($subscriptionId);
+
+        $this->getPayment()->setSubscribed($subscription);
     }
 
     /**

@@ -54,6 +54,7 @@ class StripeWebhooks extends PaymentWebhook
     public function onWebhookEvent($event)
     {
         $whitelistedEvents = config('stripe.webhooks.listen', [
+            // Payment is paid in checkout session
             'checkout.session.completed',
         ]);
 

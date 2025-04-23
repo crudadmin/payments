@@ -5,11 +5,12 @@ namespace AdminPayments\Gateways\Stripe;
 use Exception;
 use Stripe\Exception\InvalidRequestException;
 use AdminPayments\Contracts\Exceptions\PaymentGateException;
+use AdminPayments\Gateways\Stripe\Concerns\HasStripeProduct;
 use AdminPayments\Gateways\Stripe\Concerns\HasStripeSubscription;
 
 class StripeSubscription extends StripePayment
 {
-    use HasStripeSubscription;
+    use HasStripeSubscription, HasStripeProduct;
 
     /**
      * Payment mode / payment or subscription

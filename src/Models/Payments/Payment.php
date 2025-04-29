@@ -251,7 +251,7 @@ class Payment extends AdminModel
             $response = $provider->getNotificationResponse();
         }
 
-        return $response ?? null;
+        return $response ?? ['success' => true];
     }
 
     public function onWebhookEvent($webhookName)

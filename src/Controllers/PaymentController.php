@@ -70,5 +70,7 @@ class PaymentController extends Controller
                         ->logEvent($event)
                         ->onWebhookEvent($event);
         }
+
+        return ['error' => true, 'code' => 'invalid_webhook'];
     }
 }

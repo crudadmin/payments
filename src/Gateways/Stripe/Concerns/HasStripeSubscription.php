@@ -44,13 +44,25 @@ trait HasStripeSubscription
     {
         $subscription = $this->getStripeSubscription($subscriptionId);
 
-        $isActive = in_array($subscription->status, ['active', 'trialing']);
+        $isActive = in_array($subscription->status, ['active', 'trialing', 'past_due']);
+
 
         $periodEnd = $subscription->items->first()?->current_period_end;
 
         return [
+            // Is subscription still subscribed?
             'active' => $isActive,
+
+            // Status
+            'status' => $subscription->status,
+
+            // Is payment collection of subscription active?
             'paused' => $subscription->cancel_at_period_end === true,
+
+            // Is subscription past due?
+            'past_due' => in_array($subscription->status, ['past_due']),
+
+            // Valid to date
             'valid_to' => $periodEnd ? Carbon::createFromTimestamp($periodEnd) : null,
             'trial_valid_to' => $subscription->trial_end ? Carbon::createFromTimestamp($subscription->trial_end) : null,
         ];
@@ -151,5 +163,24 @@ trait HasStripeSubscription
         ];
 
         $this->client->subscriptions->update($subscription->id, $data);
+    }
+
+    public function collectInvoicePayment($subscriptionId)
+    {
+        $subscription = $this->getStripeSubscription($subscriptionId);
+
+        if ( !$subscription || !($invoiceId = $subscription->latest_invoice) ) {
+            return false;
+        }
+
+        $invoice = $this->client->invoices->retrieve($invoiceId);
+
+        if ( in_array($invoice->status, ['open']) ) {
+            $invoice->pay();
+
+            return true;
+        }
+
+        return false;
     }
 }

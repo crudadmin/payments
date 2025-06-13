@@ -185,14 +185,20 @@ class Payment extends AdminModel
     public function setSubscribed($subscription)
     {
         if ( $this->order ){
-            // Updatni status subscribed/unsubscribed
-            $this->status = $subscription['active'] ? 'subscribed' : 'unsubscribed';
+            // Update status of the subscription according to service status
+            $this->status = $subscription['status'];
 
             // Set first subscription date
             $this->paid_at = $this->paid_at ?: ($subscription['active'] ? now() : null);
 
             // Save payment
             $this->save();
+
+            // Reset dates is subscription is not active
+            if ( $subscription['active'] === false ) {
+                $subscription['valid_to'] = null;
+                $subscription['trial_valid_to'] = null;
+            }
 
             // Set subscription
             $this->order->setSubscription($subscription, $this);

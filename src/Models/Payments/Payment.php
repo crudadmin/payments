@@ -53,7 +53,7 @@ class Payment extends AdminModel
                 Group::fields([
                     'payment_method_id' => 'name:Typ platby|belongsTo:payments_methods,name|required',
                 ])->if(config('adminpayments.payment_methods.enabled', true)),
-                'status' => 'name:Status|max:10|default:waiting|index|required',
+                'status' => 'name:Status|max:20|default:waiting|index|required',
                 'paid_at' => 'name:Zaplatené dňa|type:datetime|hidden',
                 'data' => 'name:Data|type:json',
                 Group::fields([

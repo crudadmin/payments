@@ -70,7 +70,7 @@ class PaymentsLog extends AdminModel
                 'error' => 'Chyba',
                 'success' => 'Úspech',
             ],
-            'code' => config('adminpayments.order.codes', []),
+            'code' => config('admin_payments.order.codes', []),
         ];
     }
 

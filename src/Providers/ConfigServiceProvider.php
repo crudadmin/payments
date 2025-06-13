@@ -6,7 +6,7 @@ use Admin\Providers\AdminHelperServiceProvider;
 
 class ConfigServiceProvider extends AdminHelperServiceProvider
 {
-    private $packageConfigKey = 'adminpayments';
+    private $packageConfigKey = 'admin_payments';
 
     private function getPaymentsConfigPath()
     {

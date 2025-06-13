@@ -25,7 +25,7 @@ class PaymentService
      */
     protected $order;
 
-    protected $paymentTypesConfigKey = 'adminpayments.payment_methods.providers';
+    protected $paymentTypesConfigKey = 'admin_payments.payment_methods.providers';
 
     protected $onPaymentUrl = '';
 
@@ -206,7 +206,7 @@ class PaymentService
 
     public function isDebug()
     {
-        $isTesting = (env('APP_STORE_DEBUG') == true) || config('adminpayments.testing', false) == true;
+        $isTesting = (env('APP_STORE_DEBUG') == true) || config('admin_payments.testing', false) == true;
 
         return app()->environment('local') && env('APP_DEBUG') == true && $isTesting;
     }
@@ -221,7 +221,7 @@ class PaymentService
                 'PAYMENT_PAID' => _('Vaša objednávka už bola úspešne zaplatená.'),
                 'INVOICE_ERROR' => _('Chyba vygenerovania dokladu.'),
             ],
-            config('adminpayments.error_codes', []),
+            config('admin_payments.error_codes', []),
             config('admineshop.order.codes', []),
         );
 

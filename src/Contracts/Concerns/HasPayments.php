@@ -24,12 +24,12 @@ trait HasPayments
 
     public function hasInvoices()
     {
-        return config('adminpayments.invoices.enabled', false);
+        return config('admin_payments.invoices.enabled', false);
     }
 
     public function hasPaidNotification()
     {
-        return config('adminpayments.notifications.paid', true);
+        return config('admin_payments.notifications.paid', true);
     }
 
     public function getNumberAttribute()

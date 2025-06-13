@@ -52,7 +52,7 @@ class Payment extends AdminModel
                 'price' => 'name:Cena|type:decimal|required',
                 Group::fields([
                     'payment_method_id' => 'name:Typ platby|belongsTo:payments_methods,name|required',
-                ])->if(config('adminpayments.payment_methods.enabled', true)),
+                ])->if(config('admin_payments.payment_methods.enabled', true)),
                 'status' => 'name:Status|max:20|default:waiting|index|required',
                 'paid_at' => 'name:Zaplatené dňa|type:datetime|hidden',
                 'data' => 'name:Data|type:json',
@@ -118,7 +118,7 @@ class Payment extends AdminModel
     public function getIsPaidAttribute()
     {
         //!!! TESTING PAYMENT: UNCOMENT THIS ONLY DURING TESTING SINGLE PAYMENT !!!
-        if ( app()->environment('local') && app()->hasDebugModeEnabled() && config('adminpayments.testing', false) === true ){
+        if ( app()->environment('local') && app()->hasDebugModeEnabled() && config('admin_payments.testing', false) === true ){
             return false;
         }
 

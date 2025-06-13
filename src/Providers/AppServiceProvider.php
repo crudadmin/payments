@@ -64,6 +64,6 @@ class AppServiceProvider extends AdminHelperServiceProvider
 
     private function addPublishes()
     {
-        $this->publishes([__DIR__ . '/../Config/config.php' => config_path('adminpayments.php') ], 'adminpayments.config');
+        $this->publishes([__DIR__ . '/../Config/config.php' => config_path('admin_payments.php') ], 'admin_payments.config');
     }
 }

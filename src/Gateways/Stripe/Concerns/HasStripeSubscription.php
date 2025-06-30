@@ -63,8 +63,8 @@ trait HasStripeSubscription
             'past_due' => in_array($subscription->status, ['past_due']),
 
             // Valid to date
-            'valid_to' => $periodEnd ? Carbon::createFromTimestamp($periodEnd) : null,
-            'trial_valid_to' => $subscription->trial_end ? Carbon::createFromTimestamp($subscription->trial_end) : null,
+            'valid_to' => $periodEnd ? Carbon::createFromTimestamp($periodEnd, config('app.timezone')) : null,
+            'trial_valid_to' => $subscription->trial_end ? Carbon::createFromTimestamp($subscription->trial_end, config('app.timezone')) : null,
         ];
     }
 

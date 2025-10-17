@@ -142,7 +142,7 @@ class GopayPayment extends PaymentGateway
         $response = $this->gopay->createPayment([
             'payer' => $payer,
             'amount' => round($payment->price * 100),
-            'currency' => 'EUR',
+            'currency' => strtoupper($this->getCurrencyCode()),
             'order_number' => $this->getPaymentNumber(),
             'order_description' => sprintf(_('Platba %s'), env('APP_NAME')),
             'items' => $this->getItems(),

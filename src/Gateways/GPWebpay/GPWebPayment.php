@@ -7,13 +7,10 @@ use AdminPayments\Gateways\GPWebpay\PaymentRequest;
 use AdminPayments\Gateways\GPWebpay\PaymentResponse;
 use AdminPayments\Gateways\GPWebpay\PaymentResponseException as WebpayPaymentResponseException;
 use AdminPayments\Gateways\GPWebpay\Signer;
-use AdminPayments\Gateways\GPWebpay\FinalizePaymentRequest;
 use AdminPayments\Contracts\Exceptions\PaymentGateException;
 use AdminPayments\Contracts\Exceptions\PaymentResponseException;
 use AdminPayments\Gateways\PaymentGateway;
 use Exception;
-use Store;
-use Log;
 
 class GPWebPayment extends PaymentGateway
 {
@@ -54,7 +51,7 @@ class GPWebPayment extends PaymentGateway
 
             $payment = $this->getPayment();
 
-            $currencyCode = strtoupper(Store::getCurrency()->code);
+            $currencyCode = strtoupper($this->getCurrencyCode());
 
             //In case of development purposes, we need create
             //range of payments for each development environment.

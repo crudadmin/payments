@@ -8,7 +8,6 @@ use AdminPayments\Gateways\PaymentGateway;
 use Exception;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
-use Store;
 
 class StripeIntentPayment extends StripePayment
 {
@@ -19,7 +18,7 @@ class StripeIntentPayment extends StripePayment
     protected function getPaymentObject()
     {
         return array_filter([
-            'currency' => Store::getCurrency()->code,
+            'currency' => $this->getCurrencyCode(),
             'amount' => round($this->getPayment()->price * 100),
             'metadata' => [
                 'order_number' => $this->getOrder()->number,

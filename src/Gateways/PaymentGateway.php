@@ -272,6 +272,16 @@ class PaymentGateway extends ConfigProvider
             $this->getPaymentNumber()
         );
     }
+
+    /**
+     * Returns currency code
+     *
+     * @return string
+     */
+    public function getCurrencyCode()
+    {
+        return \Store::getCurrency()->code;
+    }
 }
 
 ?>

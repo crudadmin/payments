@@ -2,7 +2,6 @@
 
 namespace AdminPayments\Gateways\Paypal;
 
-use App\Models\Order\OrdersItem;
 use Log;
 use Propaganistas\LaravelPhone\PhoneNumber;
 use Store;
@@ -35,7 +34,7 @@ trait HasPaypalSupport
                 [
                     'reference_id' => $order->number,
                     'amount' => [
-                        'currency_code' => strtoupper(Store::getCurrency()->code),
+                        'currency_code' => strtoupper($this->getCurrencyCode()),
                         'value' => Store::roundNumber($order->price_vat),
                     ],
                 ]

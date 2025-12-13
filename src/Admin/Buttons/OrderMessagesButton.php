@@ -72,6 +72,6 @@ class OrderMessagesButton extends Button
     {
         return $this->title(_('Hlásenia').' ('.$row->log->count().')')->warning(
             $this->getLogContent($row, true)
-        );
+        )->size('lg');
     }
 }

@@ -13,7 +13,9 @@ class OrderMessagesButton extends Button
     public function __construct(AdminModel $row)
     {
         //Name of button on hover
-        $this->name = $this->getLogContent($row, false);
+        $this->name = _('Zobraziť hlásenia');
+
+        $this->tooltip = $this->getLogContent($row, false);
 
         $hasError = $row->log->where('type', 'error')->count() > 0;
 

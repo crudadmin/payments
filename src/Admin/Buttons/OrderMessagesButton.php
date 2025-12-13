@@ -4,6 +4,7 @@ namespace AdminPayments\Admin\Buttons;
 
 use Admin\Eloquent\AdminModel;
 use Admin\Helpers\Button;
+use Illuminate\Support\Str;
 
 class OrderMessagesButton extends Button
 {
@@ -32,7 +33,7 @@ class OrderMessagesButton extends Button
         $this->tooltipEncode = false;
     }
 
-    private function getLogContent($row, $withLog = false)
+    private function getLogContent($row, $fullVersion = false)
     {
         $lines = [
             '<strong>'._('Hlásenia').':</strong>'
@@ -43,21 +44,22 @@ class OrderMessagesButton extends Button
         foreach ($row->log as $i => $log) {
             $id = 'id-'.$log->getKey();
 
-            $logInfo = '';
-
-            $color = $log->type == 'error' ? 'red' : 'inherit';
-
-            $message = $log->created_at->format('d.m.Y H:i').' '.$log->getSelectOption('code').($log->message ? ' - '.$log->message : '');
-
-            //Add clone log into clipboard
-            if ( $log->log && $withLog == true ) {
-                $logInfo = '
-                    <i class="fa fa-info-circle" data-toggle="tooltip" title="'._('Nakopírovať hlásenie').'" onclick="var t = this.nextElementSibling; t.style.display = \'block\'; t.select();document.execCommand(\'copy\'); t.style.display = \'none\'"></i>
-                    <textarea id="'.$id.'" style="display: none">'.e($log->log).'</textarea>
-                ';
+            // Generate message preview
+            $msg = $log->getSelectOption('code').($log->message ? ' - '.$log->message : '');
+            if ( $fullVersion == false ) {
+                $msg = Str::limit($msg, 40);
             }
 
-            $lines[] = '<span class="log-type-'.$log->type.'">'.$logInfo.' '.$message.'</span>';
+            //Add clone log into clipboard
+            if ( $log->log && $fullVersion == true ) {
+                $logInfo = '
+                <i class="fa fa-info-circle" data-toggle="tooltip" title="'._('Nakopírovať hlásenie').'" onclick="var t = this.nextElementSibling; t.style.display = \'block\'; t.select();document.execCommand(\'copy\'); t.style.display = \'none\'"></i>
+                <textarea id="'.$id.'" style="display: none">'.e($log->log).'</textarea>';
+            }
+
+            $message = $log->created_at->format('d.m.Y H:i').' '.$msg;
+
+            $lines[] = '<span class="log-type-'.$log->type.'">'.($logInfo ?? '').' '.$message.'</span>';
         }
 
         return implode('<br>', $lines);

@@ -7,19 +7,22 @@ use AdminPayments\Gateways\Paypal\PaypalWebhooks;
 use AdminPayments\Gateways\Stripe\StripeWebhooks;
 use Admin\Controllers\Controller;
 use PaymentService;
+use Cache;
 
 class PaymentController extends Controller
 {
     public function paymentStatus($paymentId, $type, $hash)
     {
-        $payment = Admin::getModel('Payment')->findOrFail($paymentId)->setLocale();
+        return Cache::lock('payment_status_'.$paymentId, 15)->block(10, function () use ($paymentId, $type, $hash) {
+            $payment = Admin::getModel('Payment')->findOrFail($paymentId)->setLocale();
 
-        //Check if is payment hash correct hash and ids
-        if ( $hash != $payment->getPaymentHash($type) ) {
-            abort(401);
-        }
+            //Check if is payment hash correct hash and ids
+            if ( $hash != $payment->getPaymentHash($type) ) {
+                abort(401);
+            }
 
-        return $payment->paymentStatusResponse($type);
+            return $payment->paymentStatusResponse($type);
+        });
     }
 
     public function postPayment($model, $orderId, $hash)

@@ -49,7 +49,7 @@ class PaymentPaid extends Mailable
                     'invoice' => $this->invoice,
                 ]);
 
-        if ( $this->invoice && $pdf = $this->invoice->getPdf() ) {
+        if ( $this->invoice && config('admin_payments.notifications.attach_pdf', true) && $pdf = $this->invoice->getPdf() ) {
             $mail->attachData($pdf->get(), $pdf->filename);
         }
 

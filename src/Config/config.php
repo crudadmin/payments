@@ -26,6 +26,7 @@ return [
 
     'notifications' => [
         'paid' => true,
+        'attach_pdf' => true,
     ],
 
     /**
